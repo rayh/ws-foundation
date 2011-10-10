@@ -1,9 +1,8 @@
 //
 //  NSString+Comparison.h
-//  CommunityRadio
 //
 //  Created by Ray Hilton on 24/08/11.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011 Wirestorm Pty Ltd. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
