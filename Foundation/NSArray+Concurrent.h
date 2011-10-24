@@ -10,7 +10,7 @@
 
 @interface NSArray (Concurrent)
 - (NSArray*)concurrentFilter:(BOOL(^)(id object))block
-                        priority:(dispatch_queue_priority_t)priority;
+                    priority:(dispatch_queue_priority_t)priority;
 
 - (NSArray*)concurrentMap:(id(^)(id object))block 
                  priority:(dispatch_queue_priority_t)priority;

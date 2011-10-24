@@ -15,3 +15,7 @@
 #import "NSSet+Concurrent.h"
 
 #import "WSBenchmark.h"
+#import "WSDispatchGroup.h"
+#import "WSDispatchQueue.h"
+#import "WSDispatchSemaphore.h"
+
