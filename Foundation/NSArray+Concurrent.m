@@ -10,50 +10,54 @@
 
 @implementation NSArray (Concurrent)
 
-- (void)concurrentFilter:(BOOL(^)(id object))filter
-                complete:(void(^)(NSSet *result))complete
+- (NSSet*)concurrentFilter:(BOOL(^)(id object))filter
+                    priority:(dispatch_queue_priority_t)priority
+{
+    dispatch_queue_t queue = dispatch_get_global_queue(priority, 0);
+    NSMutableSet *results = [NSMutableSet set];
+    
+    [self concurrentEach:^(id object) {
+        if(filter(object))
+            [results addObject:object];
+    }];
+    
+    return results;
+}
+
+- (void)concurrentEach:(void(^)(id object))eachBlock 
+              priority:(dispatch_queue_priority_t)priority
+{
+    dispatch_queue_t queue = dispatch_get_global_queue(priority, 0);
+    dispatch_apply(self.count, queue, ^(size_t index) {
+        eachBlock([self objectAtIndex:index]);
+    });        
+}
+
+- (NSSet *)concurrentMap:(id(^)(id object))mapBlock 
                 priority:(dispatch_queue_priority_t)priority
 {
-    dispatch_queue_t queue = dispatch_get_global_queue(priority, 0);
-    dispatch_async(queue, ^{
-        NSMutableSet *results = [NSMutableSet set];
-        dispatch_apply(self.count, queue, ^(size_t index) {
-            id obj = [self objectAtIndex:index];
-            if(filter(obj))
-                [results addObject:obj];
-        });
-        
-        complete(results);
-    });
+    NSMutableSet *results = [NSMutableSet set];
+    [self concurrentEach:^(id object) {        
+        id result = mapBlock(object);
+        [results addObject:result];
+    }];
+    
+    return results;
 }
 
-- (void)concurrentMap:(id(^)(id object))mapBlock 
-             complete:(void(^)(NSSet *results))complete
-             priority:(dispatch_queue_priority_t)priority
+- (NSSet*)concurrentFilter:(BOOL(^)(id object))filter
 {
-    dispatch_queue_t queue = dispatch_get_global_queue(priority, 0);
-    dispatch_async(queue, ^{
-        NSMutableSet *results = [NSMutableSet set];
-        
-        // map, concurrent blocks until complete
-        dispatch_apply(self.count, queue, ^(size_t index) {
-            id result = mapBlock([self objectAtIndex:index]);
-            [results addObject:result];
-        });
-        
-        complete(results);
-    });
+    return [self concurrentFilter:filter priority:DISPATCH_QUEUE_PRIORITY_DEFAULT];
 }
 
-- (void)concurrentFilter:(BOOL(^)(id object))filter
-                complete:(void(^)(NSSet *result))complete
+- (NSSet *)concurrentMap:(id(^)(id object))mapBlock 
 {
-    [self concurrentFilter:filter complete:complete priority:DISPATCH_QUEUE_PRIORITY_DEFAULT];
+    return [self concurrentMap:mapBlock priority:DISPATCH_QUEUE_PRIORITY_DEFAULT];
 }
 
-- (void)concurrentMap:(id(^)(id object))mapBlock 
-             complete:(void(^)(NSSet *result))complete
+
+- (void)concurrentEach:(void(^)(id object))eachBlock 
 {
-    [self concurrentMap:mapBlock complete:complete priority:DISPATCH_QUEUE_PRIORITY_DEFAULT];
+    [self concurrentEach:eachBlock priority:DISPATCH_QUEUE_PRIORITY_DEFAULT];
 }
 @end

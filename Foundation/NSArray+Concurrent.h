@@ -9,18 +9,19 @@
 #import <Foundation/Foundation.h>
 
 @interface NSArray (Concurrent)
-- (void)concurrentFilter:(BOOL(^)(id object))filter
-                complete:(void(^)(NSSet *result))complete
-                priority:(dispatch_queue_priority_t)priority;
+- (NSSet*)concurrentFilter:(BOOL(^)(id object))block
+                    priority:(dispatch_queue_priority_t)priority;
 
-- (void)concurrentMap:(id(^)(id object))mapBlock 
-             complete:(void(^)(NSSet *result))complete
-             priority:(dispatch_queue_priority_t)priority;
+- (NSSet*)concurrentMap:(id(^)(id object))block 
+               priority:(dispatch_queue_priority_t)priority;
 
-- (void)concurrentFilter:(BOOL(^)(id object))filter
-                complete:(void(^)(NSSet *result))complete;
+- (void)concurrentEach:(void(^)(id object))block
+              priority:(dispatch_queue_priority_t)priority;
 
-- (void)concurrentMap:(id(^)(id object))mapBlock 
-             complete:(void(^)(NSSet *result))complete;
+// Convenience methods to avoid specifying priority
+- (void)concurrentEach:(void(^)(id object))block;
+- (NSSet*)concurrentFilter:(BOOL(^)(id object))block;
+- (NSSet*)concurrentMap:(id(^)(id object))block;
+
 
 @end
