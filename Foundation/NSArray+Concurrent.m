@@ -1,14 +1,14 @@
 //
-//  NSArray+MapReduce.m
+//  NSArray+Concurrent.m
 //  
 //
 //  Created by Ray Hilton on 24/10/11.
 //  Copyright (c) 2011 Wirestorm Pty Ltd. All rights reserved.
 //
 
-#import "NSArray+MapReduce.h"
+#import "NSArray+Concurrent.h"
 
-@implementation NSArray (MapReduce)
+@implementation NSArray (Concurrent)
 
 - (void)concurrentFilter:(BOOL(^)(id object))filter
                 complete:(void(^)(NSSet *result))complete
@@ -28,9 +28,7 @@
 }
 
 - (void)concurrentMap:(id(^)(id object))mapBlock 
-               reduce:(id (^)(id current, id object))reduceBlock 
-              initial:(id)initial
-             complete:(void(^)(id result))complete
+             complete:(void(^)(NSSet *results))complete
              priority:(dispatch_queue_priority_t)priority
 {
     dispatch_queue_t queue = dispatch_get_global_queue(priority, 0);
@@ -43,13 +41,19 @@
             [results addObject:result];
         });
         
-        // reduce, serial
-        id result = initial;
-        for(id object in results) {
-            result = reduceBlock(result, object);
-        }
-            
-        complete(result);
+        complete(results);
     });
+}
+
+- (void)concurrentFilter:(BOOL(^)(id object))filter
+                complete:(void(^)(NSSet *result))complete
+{
+    [self concurrentFilter:filter complete:complete priority:DISPATCH_QUEUE_PRIORITY_DEFAULT];
+}
+
+- (void)concurrentMap:(id(^)(id object))mapBlock 
+             complete:(void(^)(NSSet *result))complete
+{
+    [self concurrentMap:mapBlock complete:complete priority:DISPATCH_QUEUE_PRIORITY_DEFAULT];
 }
 @end
