@@ -1,19 +1,19 @@
 //
-//  NSArray+Concurrent.m
+//  NSSet+Concurrent.m
 //  
 //
 //  Created by Ray Hilton on 24/10/11.
 //  Copyright (c) 2011 Wirestorm Pty Ltd. All rights reserved.
 //
 
-#import "NSArray+Concurrent.h"
+#import "NSSet+Concurrent.h"
 
-@implementation NSArray (Concurrent)
+@implementation NSSet (Concurrent)
 
-- (NSArray*)concurrentFilter:(BOOL(^)(id object))filter
-                    priority:(dispatch_queue_priority_t)priority
+- (NSSet*)concurrentFilter:(BOOL(^)(id object))filter
+                  priority:(dispatch_queue_priority_t)priority
 {
-    NSMutableArray *results = [NSMutableArray array];
+    NSMutableSet *results = [NSMutableSet set];
     
     [self concurrentEach:^(id object) {
         if(filter(object))
@@ -27,30 +27,30 @@
               priority:(dispatch_queue_priority_t)priority
 {
     dispatch_queue_t queue = dispatch_get_global_queue(priority, 0);
-    dispatch_apply(self.count, queue, ^(size_t index) {
-        eachBlock([self objectAtIndex:index]);
+    NSArray *input = [self allObjects];
+    dispatch_apply(input.count, queue, ^(size_t index) {
+        eachBlock([input objectAtIndex:index]);
     });        
 }
 
-- (NSArray *)concurrentMap:(id(^)(id object))mapBlock 
-                  priority:(dispatch_queue_priority_t)priority
+- (NSSet *)concurrentMap:(id(^)(id object))mapBlock 
+                priority:(dispatch_queue_priority_t)priority
 {
-    NSMutableArray *results = [NSMutableArray array];
+    NSMutableSet *results = [NSMutableSet set];
     [self concurrentEach:^(id object) {        
         id result = mapBlock(object);
-        [[result retain] autorelease];
         [results addObject:result];
     } priority:priority];
     
     return results;
 }
 
-- (NSArray*)concurrentFilter:(BOOL(^)(id object))filter
+- (NSSet*)concurrentFilter:(BOOL(^)(id object))filter
 {
     return [self concurrentFilter:filter priority:DISPATCH_QUEUE_PRIORITY_DEFAULT];
 }
 
-- (NSArray*)concurrentMap:(id(^)(id object))mapBlock 
+- (NSSet *)concurrentMap:(id(^)(id object))mapBlock 
 {
     return [self concurrentMap:mapBlock priority:DISPATCH_QUEUE_PRIORITY_DEFAULT];
 }
