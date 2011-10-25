@@ -7,7 +7,7 @@
 
 #import "NSString+Comparison.h"
 
-@implementation NSString (NSString_Comparison)
+@implementation NSString (Comparison)
 
 - (BOOL)containsString:(NSString*)string
 {

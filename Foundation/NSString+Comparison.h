@@ -7,6 +7,6 @@
 
 #import <Foundation/Foundation.h>
 
-@interface NSString (NSString_Comparison)
+@interface NSString (Comparison)
 - (BOOL)containsString:(NSString*)string;
 @end
