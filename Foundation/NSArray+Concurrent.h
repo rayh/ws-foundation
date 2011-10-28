@@ -16,9 +16,14 @@
                  priority:(dispatch_queue_priority_t)priority;
 
 - (void)concurrentEach:(void(^)(id object))block
+                stride:(NSUInteger)stride
+              priority:(dispatch_queue_priority_t)priority;
+
+- (void)concurrentEach:(void(^)(id object))eachBlock 
               priority:(dispatch_queue_priority_t)priority;
 
 // Convenience methods to avoid specifying priority
+- (void)concurrentEach:(void(^)(id object))block stride:(NSUInteger)stride;
 - (void)concurrentEach:(void(^)(id object))block;
 - (NSArray*)concurrentFilter:(BOOL(^)(id object))block;
 - (NSArray*)concurrentMap:(id(^)(id object))block;
