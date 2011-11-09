@@ -60,6 +60,7 @@
 - (void)drawFrom:(CGPoint)start to:(CGPoint)end
 {
     CGContextRef context = UIGraphicsGetCurrentContext();
+    CGColorSpaceRef colourSpace = CGColorSpaceCreateDeviceRGB();
     
     CGFloat *locations;
     CGFloat *components;
@@ -89,9 +90,11 @@
             components[i*4 + 3] = c[1];
         }
     }
-    CGGradientRef myGradient = CGGradientCreateWithColorComponents(CGColorSpaceCreateDeviceRGB(), components, locations, self.colorLocations.count);
+    CGGradientRef myGradient = CGGradientCreateWithColorComponents(colourSpace, components, locations, self.colorLocations.count);
     CGContextDrawLinearGradient (context, myGradient, start, end, 0);
     
+    CGColorSpaceRelease(colourSpace);
+    CGGradientRelease(myGradient);
     free(locations);
     free(components);
 }
