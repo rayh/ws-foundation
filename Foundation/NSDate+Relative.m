@@ -9,14 +9,14 @@
 #import "NSDate+Relative.h"
 
 #define ONE_MINUTE              60
-#define ONE_HOUR                ONE_MINUTE*60
-#define ONE_DAY                 ONE_HOUR*24
-#define ONE_WEEK                ONE_DAY*7
-#define ONE_YEAR                ONE_DAY*365
-#define ONE_MONTH               ONE_YEAR/12
+#define ONE_HOUR                3600
+#define ONE_DAY                 86400
+#define ONE_WEEK                604800
+#define ONE_YEAR                31557600
+#define ONE_MONTH               2629800
 
-#define FORMAT_PAST_PATTERN     @"%d %@ ago"
-#define FORMAT_FUTURE_PATTERN   @"in %d %@"
+#define FORMAT_PAST_PATTERN     @"%0.0f %@ ago"
+#define FORMAT_FUTURE_PATTERN   @"in %0.0f %@"
 
 typedef enum {
     WSRelativeTimeIntervalNow,
@@ -37,10 +37,9 @@ typedef enum {
 
 @implementation NSDate (Relative)
 
-- (WSRelativeTimeInterval)relativeTimeIntervalSinceNow
+- (WSRelativeTimeInterval)relativeTimeInterval:(float)timeInterval
 {
-    NSTimeInterval timeInterval = fabsf([self timeIntervalSinceNow]);
-    
+    timeInterval = fabsf(timeInterval);
     if(timeInterval>=ONE_YEAR*2)
         return WSRelativeTimeIntervalManyYears;
     else if(timeInterval>=ONE_YEAR)
@@ -82,11 +81,19 @@ typedef enum {
     return [self timeIntervalSinceNow] <= 0;
 }
 
+- (NSString *)formatTimeInterval:(float)time unit:(NSString*)unit
+{
+    NSString *pattern = [self isInThePast] ? FORMAT_PAST_PATTERN : FORMAT_FUTURE_PATTERN;
+    NSLog(@"years: %d, months: %d, weeks: %d, hours: %d", ONE_YEAR, ONE_MONTH, ONE_WEEK, ONE_HOUR);
+    NSLog(@"I was passed a time of %0.4f and a unit of %@", time, unit);
+    return [NSString stringWithFormat:pattern, time, unit];
+}
+
 - (NSString*)stringByFormattingAsRelativeTimestamp
 {
-    NSTimeInterval timeInterval = fabsf([self timeIntervalSinceNow]);
-    NSString *pattern = [self isInThePast] ? FORMAT_PAST_PATTERN : FORMAT_FUTURE_PATTERN;
-    switch([self relativeTimeIntervalSinceNow]) {
+    float timeInterval = fabsf([self timeIntervalSinceNow]);
+    NSLog(@"TIme interval is %0.4f (%0.4f) %d", timeInterval, timeInterval/ONE_HOUR, ONE_HOUR);
+    switch([self relativeTimeInterval:timeInterval]) {
         case WSRelativeTimeIntervalNow:         return [self isInThePast] ? @"just now" : @"in a moment";
         case WSRelativeTimeIntervalOneMinute:   return [self isInThePast] ? @"a minute ago" : @"in a minute";
         case WSRelativeTimeIntervalOneHour:     return [self isInThePast] ? @"an hour ago" : @"in an hour";
@@ -94,12 +101,12 @@ typedef enum {
         case WSRelativeTimeIntervalOneWeek:     return [self isInThePast] ? @"a week ago" : @"in a day";
         case WSRelativeTimeIntervalOneMonth:    return [self isInThePast] ? @"a month ago" : @"in a month";
         case WSRelativeTimeIntervalOneYear:     return [self isInThePast] ? @"a year ago" : @"in a year";
-        case WSRelativeTimeIntervalManyMinutes: return [NSString stringWithFormat:pattern, (int)(timeInterval/ONE_MINUTE), @"minutes"];
-        case WSRelativeTimeIntervalManyHours:   return [NSString stringWithFormat:pattern, (int)(timeInterval/ONE_HOUR), @"hours"];
-        case WSRelativeTimeIntervalManyDays:    return [NSString stringWithFormat:pattern, (int)(timeInterval/ONE_DAY), @"days"];
-        case WSRelativeTimeIntervalManyWeeks:   return [NSString stringWithFormat:pattern, (int)(timeInterval/ONE_WEEK), @"weeks"];
-        case WSRelativeTimeIntervalManyMonths:  return [NSString stringWithFormat:pattern, (int)(timeInterval/ONE_MONTH), @"months"];
-        case WSRelativeTimeIntervalManyYears:   return [NSString stringWithFormat:pattern, (int)(timeInterval/ONE_YEAR), @"years"];
+        case WSRelativeTimeIntervalManyMinutes: return [self formatTimeInterval:timeInterval/ONE_MINUTE unit:@"minutes"];
+        case WSRelativeTimeIntervalManyHours:   return [self formatTimeInterval:timeInterval/ONE_HOUR   unit:@"hours"];
+        case WSRelativeTimeIntervalManyDays:    return [self formatTimeInterval:timeInterval/ONE_DAY    unit:@"days"];
+        case WSRelativeTimeIntervalManyWeeks:   return [self formatTimeInterval:timeInterval/ONE_WEEK   unit:@"weeks"];
+        case WSRelativeTimeIntervalManyMonths:  return [self formatTimeInterval:timeInterval/ONE_MONTH  unit:@"months"];
+        case WSRelativeTimeIntervalManyYears:   return [self formatTimeInterval:timeInterval/ONE_YEAR   unit:@"years"];
         case WSRelativeTimeIntervalDistant: {
             NSDateFormatter *df = [[[NSDateFormatter alloc] init] autorelease];
             [df setTimeStyle:NSDateFormatterFullStyle];
