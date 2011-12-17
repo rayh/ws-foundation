@@ -20,6 +20,10 @@
 // URL
 - (NSURL *)urlValueForKeyPath:(NSString*)key;
 
+// Dates
+- (NSDate*)dateValueForISO8601StringKeyPath:(NSString*)key defaultValue:(id)defaultValue;
+- (NSDate*)dateValueForISO8601StringKeyPath:(NSString*)key;
+
 // Primitive Values
 - (NSInteger)intValueForKeyPath:(NSString *)key defaultValue:(NSInteger)defaultValue;
 - (NSUInteger)unsignedIntValueForKeyPath:(NSString *)key defaultValue:(NSUInteger)defaultValue;
