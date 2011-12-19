@@ -84,15 +84,15 @@ typedef enum {
 - (NSString *)formatTimeInterval:(float)time unit:(NSString*)unit
 {
     NSString *pattern = [self isInThePast] ? FORMAT_PAST_PATTERN : FORMAT_FUTURE_PATTERN;
-    NSLog(@"years: %d, months: %d, weeks: %d, hours: %d", ONE_YEAR, ONE_MONTH, ONE_WEEK, ONE_HOUR);
-    NSLog(@"I was passed a time of %0.4f and a unit of %@", time, unit);
+//    NSLog(@"years: %d, months: %d, weeks: %d, hours: %d", ONE_YEAR, ONE_MONTH, ONE_WEEK, ONE_HOUR);
+//    NSLog(@"I was passed a time of %0.4f and a unit of %@", time, unit);
     return [NSString stringWithFormat:pattern, time, unit];
 }
 
 - (NSString*)stringByFormattingAsRelativeTimestamp
 {
     float timeInterval = fabsf([self timeIntervalSinceNow]);
-    NSLog(@"TIme interval is %0.4f (%0.4f) %d", timeInterval, timeInterval/ONE_HOUR, ONE_HOUR);
+//    NSLog(@"TIme interval is %0.4f (%0.4f) %d", timeInterval, timeInterval/ONE_HOUR, ONE_HOUR);
     switch([self relativeTimeInterval:timeInterval]) {
         case WSRelativeTimeIntervalNow:         return [self isInThePast] ? @"just now" : @"in a moment";
         case WSRelativeTimeIntervalOneMinute:   return [self isInThePast] ? @"a minute ago" : @"in a minute";

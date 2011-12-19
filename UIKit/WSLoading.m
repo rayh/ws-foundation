@@ -41,8 +41,9 @@
         
         UIActivityIndicatorView *activityView = [[[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite] autorelease];
         activityView.hidesWhenStopped = YES;
+        activityView.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin;
         activityView.center = CGPointMake(self.contentView.frame.size.width/2, 
-                                          10 + (activityView.frame.size.height/2));
+                                          20 + (activityView.frame.size.height/2));
         [activityView startAnimating];
         [self.contentView addSubview:activityView];
         
