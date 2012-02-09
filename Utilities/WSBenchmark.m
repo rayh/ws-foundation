@@ -8,14 +8,49 @@
 
 #import "WSBenchmark.h"
 
-@implementation WSBenchmark
 
-+ (NSTimeInterval)name:(NSString*)label benchmark:(void(^)(void))block;
+@implementation WSBenchmark
+@synthesize name=_name;
+@synthesize startedAt=_startedAt;
+@synthesize lastStepAt=_lastStepAt;
+@synthesize finishedAt=_finishedAt;
+
++ (WSBenchmark*)benchmark:(NSString *)label
 {
-    NSDate *date = [NSDate date];
-    block();
-    NSTimeInterval time =  [[NSDate date] timeIntervalSinceDate:date];
-    NSLog(@"%@ (took %0.3fs", label, time);
-    return time;
+    WSBenchmark *bm = [[[WSBenchmark alloc] init] autorelease];
+    bm.name = label;
+    bm.startedAt = [NSDate date];
+    bm.lastStepAt = bm.startedAt;
+    return bm;
+}
+
+- (void)step:(NSString *)stepDescription
+{
+    NSDate *now = [NSDate date];
+    NSLog(@"%@: %@ (at %0.3fs, took %0.3f", self.name, 
+          stepDescription, 
+          [now timeIntervalSinceDate:self.startedAt], 
+          [now timeIntervalSinceDate:self.lastStepAt]);
+                                                      
+    self.lastStepAt = now;
+}
+
+- (void)finish
+{
+    [self step:@"Finished"];
+    self.finishedAt = self.lastStepAt;
+}
+
+- (NSTimeInterval)timeTaken
+{
+    return [self.finishedAt timeIntervalSinceDate:self.startedAt];
+}
+
++ (NSTimeInterval)name:(NSString*)label benchmark:(void(^)(WSBenchmark *benchmark))block;
+{
+    WSBenchmark *bm = [WSBenchmark benchmark:label];
+    block(bm);
+    [bm finish];
+    return bm.timeTaken;
 }
 @end

@@ -82,6 +82,7 @@
                          loading.contentView.transform = CGAffineTransformMakeScale(1.5, 1.5);
                          loading.alpha = 0;
                      } completion:^(BOOL finished) {
+                         self.userInteractionEnabled = YES;
                          [loading removeFromSuperview];
                      }];
 }
@@ -93,7 +94,9 @@
         return;
     
     loading = [[[WSLoading alloc] initWithFrame:self.bounds] autorelease];
-    [self addSubview:loading];
+    [self addSubview:loading];\
+    
+    self.userInteractionEnabled = NO;
     
     
     [UIView animateWithDuration:0.2

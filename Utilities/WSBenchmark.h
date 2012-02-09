@@ -9,6 +9,13 @@
 #import <Foundation/Foundation.h>
 
 @interface WSBenchmark : NSObject
-
-+ (NSTimeInterval)name:(NSString*)label benchmark:(void(^)(void))block;
+@property (nonatomic, retain) NSString *name;
+@property (nonatomic, retain) NSDate *startedAt;
+@property (nonatomic, retain) NSDate *lastStepAt;
+@property (nonatomic, retain) NSDate *finishedAt;
+@property (nonatomic, readonly) NSTimeInterval timeTaken;
++ (WSBenchmark*)benchmark:(NSString *)label;
++ (NSTimeInterval)name:(NSString*)label benchmark:(void(^)(WSBenchmark *benchmark))block;
+- (void)step:(NSString *)stepDescription;
+- (void)finish;
 @end
