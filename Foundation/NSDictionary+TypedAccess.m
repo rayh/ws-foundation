@@ -1,5 +1,6 @@
 
 #import "NSDictionary+TypedAccess.h"
+#import "NSDateFormatter+ISO8601.h"
 
 @implementation NSDictionary (TypedAccess)
 
@@ -88,6 +89,16 @@
     return [self boolValueForKeyPath:key defaultValue:FALSE];
 }
 
+- (NSDate*)dateValueForISO8601StringKeyPath:(NSString*)key 
+{
+    return [self dateValueForISO8601StringKeyPath:key defaultValue:nil];
+}
+
+- (NSDate*)dateValueForISO8601StringKeyPath:(NSString*)key defaultValue:(id)defaultValue
+{
+    NSString *stringValue = [self stringValueForKeyPath:key defaultValue:nil];
+    return stringValue==nil ? defaultValue : [[NSDateFormatter iso8601DateFormatter] dateFromString:stringValue];
+}
 
 @end
 
