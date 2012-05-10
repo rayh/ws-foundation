@@ -9,8 +9,8 @@
 #import <Foundation/Foundation.h>
 
 @interface WSDispatchSemaphore : NSObject
-//+ (WSDispatchSemaphore*)semaphoreWithPoolSize:(NSInteger)size;
-//- (void)wait:(NSTimeInterval)timeInterval;
-//- (void)waitForever;
-//- (void)signal;
++ (WSDispatchSemaphore*)semaphoreWithPoolSize:(NSInteger)size;
+- (void)wait:(NSTimeInterval)timeInterval;
+- (void)waitForever;
+- (void)signal;
 @end
