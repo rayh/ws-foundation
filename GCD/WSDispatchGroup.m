@@ -1,9 +1,8 @@
 //
 //  WSDispatchGroup.m
-//  CommunityRadio
 //
 //  Created by Ray Hilton on 12/10/11.
-//  Copyright (c) 2011 __MyCompanyName__. All rights reserved.
+//  Copyright (c) 2011 Wirestorm Pty Ltd. All rights reserved.
 //
 
 #import "WSDispatchGroup.h"

@@ -97,7 +97,14 @@
 - (NSDate*)dateValueForISO8601StringKeyPath:(NSString*)key defaultValue:(id)defaultValue
 {
     NSString *stringValue = [self stringValueForKeyPath:key defaultValue:nil];
-    return stringValue==nil ? defaultValue : [[NSDateFormatter iso8601DateFormatter] dateFromString:stringValue];
+    if(stringValue==nil)
+        return defaultValue;
+
+    //For weather forecast, the dates come in the format 2012-05-28T00:00:00Z so replacing it to be 2012-05-28T00:00:00.000Z
+    //for dates in view my bill, the dates come in the format 2012-05-28T00:00:00.000Z so the iso8601DateFormatter can handle it
+    stringValue = [[NSRegularExpression regularExpressionWithPattern:@"(\\:\\d\\d)Z$" options:0 error:nil] stringByReplacingMatchesInString:stringValue options:0 range:NSMakeRange(0, stringValue.length) withTemplate:@"$1.000Z"];
+    
+    return [[NSDateFormatter iso8601DateFormatter] dateFromString:stringValue];
 }
 
 @end

@@ -18,6 +18,11 @@
     return [[[WSDispatchQueue alloc] initWithName:name] autorelease];
 }
 
++ (WSDispatchQueue*)withQueue:(dispatch_queue_t)queue
+{
+    return [[[WSDispatchQueue alloc] initWithQueue:queue] autorelease];
+}
+
 + (WSDispatchQueue*)mainQueue {
     return [[[WSDispatchQueue alloc] initWithQueue:dispatch_get_main_queue()] autorelease];
 }
