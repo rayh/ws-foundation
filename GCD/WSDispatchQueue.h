@@ -28,6 +28,8 @@ typedef void (^WSEnumerationBlock)(unsigned long index);
 // Useful for concurrently enumerating arrays
 - (void)apply:(unsigned long)size block:(WSEnumerationBlock)block;
 
+
++ (WSDispatchQueue*)withQueue:(dispatch_queue_t)queue;
 + (WSDispatchQueue*)mainQueue;
 + (WSDispatchQueue*)currentQueue;
 + (WSDispatchQueue*)queueWithName:(NSString *)name;
