@@ -9,9 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @interface UIView (WSLoading)
-- (void)wsHideLoading;
-- (void)wsShowLoading;
-@end
-
-@interface WSLoading : UIView
+- (void)showLoading;
+- (void)hideLoading;
+- (void)showLoadingWithOffset:(CGPoint)offset overlayColour:(UIColor *)colour;
 @end
