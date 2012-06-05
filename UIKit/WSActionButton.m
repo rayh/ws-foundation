@@ -9,6 +9,7 @@
 #import <QuartzCore/QuartzCore.h>
 #import "UILabel+WSFoundation.h"
 #import "WSLayoutView.h"
+#import "UIColor+WSFoundation.h"
 
 #define LEFT_ACCESSORY_TAG 12032323
 #define RIGHT_ACCESSORY_TAG 12032324
