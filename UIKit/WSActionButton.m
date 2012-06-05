@@ -7,29 +7,16 @@
 
 #import "WSActionButton.h"
 #import <QuartzCore/QuartzCore.h>
+#import "UILabel+WSFoundation.h"
 
 #define LEFT_ACCESSORY_TAG 12032323
 #define RIGHT_ACCESSORY_TAG 12032324
-
-@implementation UILabel (WSActionButton)
-
-- (void)setTextAndAdjustWidth:(NSString *)text
-{
-    CGSize size = [text sizeWithFont:self.font
-                    constrainedToSize:CGSizeMake(INT32_MAX, self.frame.size.height)];
-    self.frame = CGRectMake(self.frame.origin.x,
-                            self.frame.origin.y,
-                            size.width,
-                            self.frame.size.height);
-    [self setText:text];
-}
-@end
 
 @interface WSActionButton ()
 {
     WSActionButtonStyle _style;
 }
-@property (nonatomic, strong) UIColor *tintColourActual;
+@property (nonatomic, retain) UIColor *tintColourActual;
 @property (nonatomic, assign) UIEdgeInsets contentInsets;
 @end
 
@@ -41,9 +28,16 @@
 @synthesize contentInsets=_contentInsets;
 @synthesize autoresizeWitdh=_autoresizeWitdh;
 
+- (void)dealloc
+{
+    self.tintColourActual = nil;
+    self.titleLabel = nil;
+    [super dealloc];
+}
+
 + (WSActionButton*)buttonWithLabel:(NSString *)label style:(WSActionButtonStyle)style
 {
-    WSActionButton *button = [[WSActionButton alloc] initWithFrame:CGRectMake(0, 0, 160, 44) style:style];
+    WSActionButton *button = [[[WSActionButton alloc] initWithFrame:CGRectMake(0, 0, 160, 44) style:style] autorelease];
     [button setTitle:label animated:NO];
     
     return button;

@@ -19,7 +19,7 @@ typedef enum {
 @interface WSActionButton : UIControl
 @property (nonatomic, assign) WSActionButtonStyle tintStyle;
 @property (nonatomic, assign) BOOL autoresizeWitdh;
-@property (nonatomic, strong) UILabel *titleLabel;
+@property (nonatomic, retain) UILabel *titleLabel;
 @property (nonatomic, assign) UIView *leftAccessoryView;
 @property (nonatomic, assign) UIView *rightAccessoryView;
 @property (nonatomic, assign) NSString *leftAccessoryLabel;
