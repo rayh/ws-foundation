@@ -28,4 +28,12 @@
                             self.frame.size.height);
     [self setText:text];
 }
+
+- (void)setTextAndAdjustHeight:(NSString *)text
+{
+    self.text = text;
+    CGSize size = [text sizeWithFont:self.font
+                   constrainedToSize:CGSizeMake(self.frame.size.width, INT32_MAX)];
+    self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.frame.size.width, size.height);
+}
 @end

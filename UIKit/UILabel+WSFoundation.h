@@ -9,5 +9,6 @@
 
 @interface UILabel (WSFoundation)
 - (void)setTextAndAdjustWidth:(NSString *)text;
+- (void)setTextAndAdjustHeight:(NSString *)text;
 + (UILabel*)labelWithFrame:(CGRect)frame font:(UIFont*)font colour:(UIColor*)colour text:(NSString*)text;
 @end
