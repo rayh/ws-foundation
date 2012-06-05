@@ -20,10 +20,10 @@ typedef enum {
 @property (nonatomic, assign) WSActionButtonStyle tintStyle;
 @property (nonatomic, assign) BOOL autoresizeWitdh;
 @property (nonatomic, retain) UILabel *titleLabel;
-@property (nonatomic, assign) UIView *leftAccessoryView;
-@property (nonatomic, assign) UIView *rightAccessoryView;
-@property (nonatomic, assign) NSString *leftAccessoryLabel;
-@property (nonatomic, assign) NSString *rightAccessoryLabel;
+@property (nonatomic, retain) UIView *leftAccessoryView;
+@property (nonatomic, retain) UIView *rightAccessoryView;
+@property (nonatomic, retain) NSString *leftAccessoryLabel;
+@property (nonatomic, retain) NSString *rightAccessoryLabel;
 
 + (WSActionButton*)buttonWithLabel:(NSString *)label style:(WSActionButtonStyle)style;
 - (void)setTitle:(NSString *)title animated:(BOOL)animated;

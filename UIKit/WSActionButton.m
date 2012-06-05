@@ -8,9 +8,11 @@
 #import "WSActionButton.h"
 #import <QuartzCore/QuartzCore.h>
 #import "UILabel+WSFoundation.h"
+#import "WSLayoutView.h"
 
 #define LEFT_ACCESSORY_TAG 12032323
 #define RIGHT_ACCESSORY_TAG 12032324
+#define INNER_PADDING 10.
 
 @interface WSActionButton ()
 {
@@ -39,7 +41,6 @@
 {
     WSActionButton *button = [[[WSActionButton alloc] initWithFrame:CGRectMake(0, 0, 160, 44) style:style] autorelease];
     [button setTitle:label animated:NO];
-    
     return button;
 }
 
@@ -95,7 +96,7 @@
     self.layer.borderWidth = 1.;
     self.layer.cornerRadius = 4.;
     self.layer.masksToBounds = YES;
-    
+        
     self.titleLabel = [self createButtonLabel:self.bounds];
     [self addSubview:self.titleLabel];
 }
@@ -114,14 +115,28 @@
 
 - (void)setLeftAccessoryView:(UIView *)leftAccessoryView
 {
-    leftAccessoryView.tag = LEFT_ACCESSORY_TAG;
-    [self addSubview:leftAccessoryView];
-}
+    if(!leftAccessoryView)
+    {
+        [[self leftAccessoryView] removeFromSuperview];
+    }
+    else
+    {
+        leftAccessoryView.tag = LEFT_ACCESSORY_TAG;
+        [self insertSubview:leftAccessoryView atIndex:0];
+    }
+}   
 
 - (void)setRightAccessoryView:(UIView *)rightAccessoryView
 {
-    rightAccessoryView.tag = RIGHT_ACCESSORY_TAG;
-    [self addSubview:rightAccessoryView];
+    if(!rightAccessoryView)
+    {
+        [[self rightAccessoryView] removeFromSuperview];
+    }
+    else
+    {
+        rightAccessoryView.tag = LEFT_ACCESSORY_TAG;
+        [self insertSubview:rightAccessoryView atIndex:0];
+    }
 }
 
 - (NSString*)leftAccessoryLabel
@@ -168,7 +183,6 @@
     }
     
     [(UILabel*)self.rightAccessoryView setTextAndAdjustWidth:rightAccessoryLabel];
-//    [self setNeedsLayout];
 }
 
 #pragma mark - tinting
@@ -298,17 +312,22 @@
     return [CAGradientLayer class];
 }
 
+#pragma mark - layout
+
 - (void)layoutSubviews
 {
     [super layoutSubviews];
+//    self.layoutView.frame = UIEdgeInsetsInsetRect(self.bounds, self.contentInsets);
+    
+//    [self.superview setNeedsLayout];
     CGRect titleFrame = UIEdgeInsetsInsetRect(self.bounds, self.contentInsets);
     
     if(self.leftAccessoryView)
     {
         // adjust title frame to be left offset
-        titleFrame = CGRectMake(titleFrame.origin.x+self.leftAccessoryView.frame.size.width,
+        titleFrame = CGRectMake(titleFrame.origin.x+self.leftAccessoryView.frame.size.width+INNER_PADDING,
                                 titleFrame.origin.y,
-                                titleFrame.size.width - self.leftAccessoryView.frame.size.width, 
+                                titleFrame.size.width - self.leftAccessoryView.frame.size.width-INNER_PADDING, 
                                 titleFrame.size.height);
         
         self.leftAccessoryView.frame = CGRectMake(self.contentInsets.left,
@@ -322,7 +341,7 @@
         // adjust title frame to be left offset
         titleFrame = CGRectMake(titleFrame.origin.x,
                                 titleFrame.origin.y,
-                                titleFrame.size.width - self.rightAccessoryView.frame.size.width, 
+                                titleFrame.size.width - self.rightAccessoryView.frame.size.width-INNER_PADDING, 
                                 titleFrame.size.height);
         
         self.rightAccessoryView.frame = CGRectMake(self.bounds.size.width-self.contentInsets.right-self.rightAccessoryView.frame.size.width,
@@ -334,6 +353,16 @@
     self.titleLabel.frame = titleFrame;
 }
 
+//- (void)updateTitleLabelAndResizeFrame:(NSString*)title
+//{
+//    [self.titleLabel setTextAndAdjustWidth:title];
+//    self.frame = CGRectMake(self.frame.origin.x,
+//                            self.frame.origin.y,
+//                            self.layoutView.sizeOfContents.width + self.contentInsets.left + self.contentInsets.right,
+//                            self.frame.size.height);
+//    [self setNeedsLayout];
+//}
+
 - (void)setTitle:(NSString *)title animated:(BOOL)animated
 {
     if(!self.autoresizeWitdh)
@@ -343,28 +372,27 @@
         return;
     }
     
+    // Avoid animation if its the same
+    if([self.titleLabel.text isEqualToString:title])
+        animated = NO;
+
     
-    // New frame
     CGSize size = [title sizeWithFont:self.titleLabel.font
                     constrainedToSize:CGSizeMake(INT32_MAX, self.frame.size.height)];
     
     CGFloat newWidth = size.width+self.contentInsets.left+self.contentInsets.right;
     
     if(self.leftAccessoryView)
-        newWidth+=self.leftAccessoryView.frame.size.width;
+        newWidth+=self.leftAccessoryView.frame.size.width+INNER_PADDING;
     
     if(self.rightAccessoryView)
-        newWidth+=self.rightAccessoryView.frame.size.width;
+        newWidth+=self.rightAccessoryView.frame.size.width+INNER_PADDING;
     
     CGRect newFrame = CGRectMake(self.frame.origin.x,
                                  self.frame.origin.y,
                                  newWidth,
                                  self.frame.size.height);    
-    
-    // Avoid animation if its the same
-    if([self.titleLabel.text isEqualToString:title])
-        animated = NO;
-    
+
     
     if(!animated)
     {
@@ -386,5 +414,7 @@
                                               }];
                          }];
     }
+//    
+
 }
 @end

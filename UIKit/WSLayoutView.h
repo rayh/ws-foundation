@@ -18,6 +18,7 @@ typedef enum {
 @property (nonatomic) WSLayoutViewAlignment alignment;
 @property (nonatomic) CGFloat animationDuration;
 @property (nonatomic) CGFloat padding;
+@property (nonatomic, readonly) CGSize sizeOfContents;
 
 + (WSLayoutView*)layoutInFrame:(CGRect)rect
                          views:(NSArray*)views

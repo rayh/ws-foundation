@@ -7,6 +7,11 @@
 
 #import "WSLayoutView.h"
 
+@interface WSLayoutView () {
+    CGSize _sizeOfContents;
+}
+@end
+
 @implementation WSLayoutView
 @synthesize alignment=_alignment;
 @synthesize padding=_padding;
@@ -52,6 +57,12 @@
     return self;
 }
 
+- (CGSize)sizeOfContents
+{
+    [self updateSubviewPostions];
+    return _sizeOfContents;
+}
+
 //- (void)animateSubviewPositions
 //{
 //    [UIView animateWithDuration:self.animationDuration animations:^{
@@ -67,6 +78,7 @@
         {
             // Start from the right
             CGFloat xOffset = self.frame.size.width;
+            CGFloat width = 0;
             for(int i = self.subviews.count-1; i >=0; i--) {
                 UIView *view = [self.subviews objectAtIndex:i];
                 if(view.hidden || view.alpha == 0)
@@ -78,45 +90,51 @@
                                         view.frame.size.width, 
                                         view.frame.size.height);
                 xOffset = view.frame.origin.x - self.padding;
+                width+=view.frame.size.width+self.padding;
             }
+            _sizeOfContents = CGSizeMake(width-self.padding, self.frame.size.height);
             break;
         }
             
         case WSLayoutViewAlignmentLeft:
         {
-            CGFloat xOffset = 0;
+            CGFloat width = 0;
             for(UIView *view in self.subviews) {
                 if(view.hidden || view.alpha == 0)
                     continue;
                 
-                view.frame = CGRectMake(xOffset, 
+                view.frame = CGRectMake(width, 
                                         view.frame.origin.y,
                                         view.frame.size.width, 
                                         view.frame.size.height);
-                xOffset+=view.frame.size.width+self.padding;
+                
+                width+=view.frame.size.width+self.padding;
             }
+            _sizeOfContents = CGSizeMake(width-self.padding, self.frame.size.height);
             break;
         }
             
         case WSLayoutViewAlignmentTop:
         {
-            CGFloat yOffset = 0;
+            CGFloat height = 0;
             for(UIView *view in self.subviews) {
                 if(view.hidden || view.alpha == 0)
                     continue;
                 
                 view.frame = CGRectMake(view.frame.origin.x, 
-                                        yOffset,
+                                        height,
                                         view.frame.size.width, 
                                         view.frame.size.height);
-                yOffset+=view.frame.size.height+self.padding;
+                height+=view.frame.size.height+self.padding;
             }
+            _sizeOfContents = CGSizeMake(self.frame.size.width, height-self.padding);
             break;
         }
             
         case WSLayoutViewAlignmentBottom:
         {
             CGFloat yOffset = self.frame.size.height;
+            CGFloat height = 0;
             for(int i = self.subviews.count-1; i >=0; i--) {
                 UIView *view = [self.subviews objectAtIndex:i];
                 if(view.hidden || view.alpha == 0)
@@ -128,7 +146,9 @@
                                         view.frame.size.width, 
                                         view.frame.size.height);
                 yOffset = view.frame.origin.y - self.padding;
+                height+=view.frame.size.height + self.padding;
             }
+            _sizeOfContents = CGSizeMake(self.frame.size.width, height-self.padding);
             break;
         }
     }
