@@ -225,6 +225,11 @@
     [self updateTintColour];
 }
 
+- (UIColor *)tintColour
+{
+    return self.tintColourActual;
+}
+
 - (void)updateBackgroundWithGradientTint:(UIColor*)tint
 {
     CAGradientLayer *gradient = (CAGradientLayer*)[self layer];
@@ -266,7 +271,7 @@
     }
     else if(self.isSelected)
     {
-        [self updateBackgroundWithGradientTint:[self.tintColourActual colourByAdjustingHue:0 saturation:0.2 brightness:0.2 alpha:0]];
+        [self updateBackgroundWithGradientTint:[self.tintColourActual colourByAdjustingHue:0 saturation:0.2 brightness:0.3 alpha:0]];
     }
     else if(!self.isEnabled)
     {
