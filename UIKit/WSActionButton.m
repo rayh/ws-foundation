@@ -123,7 +123,7 @@
     else
     {
         leftAccessoryView.tag = LEFT_ACCESSORY_TAG;
-        [self insertSubview:leftAccessoryView atIndex:0];
+        [self addSubview:leftAccessoryView];
     }
 }   
 
@@ -135,8 +135,8 @@
     }
     else
     {
-        rightAccessoryView.tag = LEFT_ACCESSORY_TAG;
-        [self insertSubview:rightAccessoryView atIndex:0];
+        rightAccessoryView.tag = RIGHT_ACCESSORY_TAG;
+        [self addSubview:rightAccessoryView];
     }
 }
 
