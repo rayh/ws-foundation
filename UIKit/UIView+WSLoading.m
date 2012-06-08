@@ -107,6 +107,7 @@
         return;
     
     loading = [[WSLoadingView alloc] initWithFrame:self.bounds];
+    loading.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin|UIViewAutoresizingFlexibleRightMargin|UIViewAutoresizingFlexibleTopMargin|UIViewAutoresizingFlexibleBottomMargin;
     loading.backgroundColor = colour;
     loading.frame = CGRectOffset(loading.frame, offset.x, offset.y);
     [self addSubview:loading];
