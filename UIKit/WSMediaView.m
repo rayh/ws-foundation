@@ -8,7 +8,7 @@
 #import "WSMediaView.h"
 #import <QuartzCore/QuartzCore.h>
 
-@interface WSFullScreenMediaViewController : UIViewController
+@interface WSFullScreenMediaView : UIView
 @property (nonatomic, strong) WSMediaView *mediaView;
 @property (nonatomic) BOOL wasStatusBarHidden;
 @property (nonatomic) CGRect originalFrame;
@@ -16,7 +16,7 @@
 @property (nonatomic, strong) UIView *backgroundView;
 @end
 
-@implementation WSFullScreenMediaViewController
+@implementation WSFullScreenMediaView
 @synthesize wasStatusBarHidden=_wasStatusBarHidden;
 @synthesize mediaView=_mediaView;
 @synthesize originalParent=_originalParent;
@@ -25,7 +25,7 @@
 
 - (id)initWithMediaView:(WSMediaView*)mediaView
 {
-    self = [super init];
+    self = [super initWithFrame:CGRectZero];
     if (self) {
         self.mediaView = mediaView;
         self.originalParent = mediaView.superview;
@@ -34,43 +34,81 @@
     return self;
 }
 
+#define DegreesToRadians(degrees) (degrees * M_PI / 180)
+
+- (void)statusBarDidChangeFrame:(NSNotification *)notification {
+    
+    UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];    
+    UIWindow *window = [[[UIApplication sharedApplication] delegate] window];
+    
+    switch (orientation) 
+    {
+        case UIInterfaceOrientationLandscapeLeft:
+            self.transform =  CGAffineTransformMakeRotation(-DegreesToRadians(90));
+            self.frame = CGRectMake(0,0, window.bounds.size.height, window.bounds.size.width);
+            break;
+            
+        case UIInterfaceOrientationLandscapeRight:
+            self.frame = CGRectMake(0,0, window.bounds.size.height, window.bounds.size.width);
+            self.transform = CGAffineTransformMakeRotation(DegreesToRadians(90));
+            break;
+            
+        case UIInterfaceOrientationPortraitUpsideDown:
+            self.frame = CGRectMake(0,0, window.bounds.size.width, window.bounds.size.height);
+            self.transform = CGAffineTransformMakeRotation(DegreesToRadians(180));
+            break;
+            
+        case UIInterfaceOrientationPortrait:
+        default:
+            self.frame = CGRectMake(0,0, window.bounds.size.width, window.bounds.size.height);
+            self.transform =  CGAffineTransformMakeRotation(DegreesToRadians(0));
+            break;
+    }
+
+}
+
+
 - (void)presentFullScreen
 {
-    UIView *rootView = [[[[[UIApplication sharedApplication] delegate] window] subviews] objectAtIndex:0];
-    
-    
-    self.view.frame = rootView.bounds;
-//    self.transform = window.transform;
+    [[NSNotificationCenter defaultCenter] addObserver:self 
+                                             selector:@selector(statusBarDidChangeFrame:) 
+                                                 name:UIApplicationDidChangeStatusBarFrameNotification 
+                                               object:nil];
+    UIWindow *window = [[[UIApplication sharedApplication] delegate] window];
+    self.frame = window.bounds;
     
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hideFullScreen)];
     tapGesture.numberOfTapsRequired = 1;
     tapGesture.numberOfTouchesRequired = 1;        
-    [self.view addGestureRecognizer:tapGesture];
+    [self addGestureRecognizer:tapGesture];
     
-    self.backgroundView = [[UIView alloc] initWithFrame:rootView.bounds];
+    self.backgroundView = [[UIView alloc] initWithFrame:window.bounds];
     self.backgroundView.backgroundColor = [UIColor blackColor];
     self.backgroundView.alpha = 0;
-    [self.view addSubview:self.backgroundView];
+    [self addSubview:self.backgroundView];
     
     self.originalParent = self.mediaView.superview;
     self.originalFrame = self.mediaView.frame;
-    self.mediaView.frame = [rootView convertRect:[self.mediaView convertRect:self.mediaView.frame toView:nil] fromView:nil];
-    [self.view addSubview:self.mediaView];
+    self.mediaView.frame = [window convertRect:[self convertRect:self.mediaView.frame toView:nil] fromView:nil];
+    [self addSubview:self.mediaView];
     
-    [rootView addSubview:self.view];
+    [window addSubview:self];
     
     self.wasStatusBarHidden = [[UIApplication sharedApplication] isStatusBarHidden];
     [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationSlide];
     
+//    [self statusBarDidChangeFrame:nil];
     [UIView animateWithDuration:0.3
                      animations:^{
                          self.backgroundView.alpha = 1;
-                         self.mediaView.frame = rootView.bounds;
+                         self.mediaView.frame = window.bounds;
                      }];
 }
 
 - (void)hideFullScreen
 {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    
     [[UIApplication sharedApplication] setStatusBarHidden:self.wasStatusBarHidden withAnimation:UIStatusBarAnimationSlide];
     
     UIWindow *window = [[[UIApplication sharedApplication] delegate] window];
@@ -82,18 +120,8 @@
                      } completion:^(BOOL finished) {
                          [self.originalParent addSubview:self.mediaView];
                          self.mediaView.frame = self.originalFrame;
-                         [self.view removeFromSuperview];
+                         [self removeFromSuperview];
                      }];
-}
-
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
-{
-    return YES;
-}
-
-- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
-{
-    NSLog(@"Rotate image view to %d", toInterfaceOrientation);
 }
 
 @end
@@ -141,6 +169,16 @@
         
     }
     return self;
+}
+
+- (void)setUserInteractionEnabled:(BOOL)userInteractionEnabled
+{
+    self.webView.userInteractionEnabled = userInteractionEnabled;
+}
+
+- (BOOL)isUserInteractionEnabled
+{
+    return self.webView.userInteractionEnabled;
 }
 
 - (NSURL *)url
@@ -200,10 +238,10 @@
     [self.delegate mediaView:self didFinishLoadingUrl:self.originalUrl];
 }
 
-- (void)presentFullScreen
-{
-//    WSFullScreenMediaViewController *fullScreenView = [[WSFullScreenMediaViewController alloc] initWithMediaView:self];
+//- (void)presentFullScreen
+//{
+//    WSFullScreenMediaView *fullScreenView = [[WSFullScreenMediaView alloc] initWithMediaView:self];
 //    [fullScreenView presentFullScreen];
-}
+//}
 
 @end

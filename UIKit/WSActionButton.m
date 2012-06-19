@@ -78,7 +78,7 @@
 {
     UILabel *label = [UILabel labelWithFrame:frame 
                        font:[UIFont boldSystemFontOfSize:16] 
-                     colour:[UIColor colorWithWhite:1. alpha:0.8]
+                     colour:[UIColor colorWithWhite:1. alpha:0.9]
                        text:nil];
     label.userInteractionEnabled = NO;
     label.textAlignment = UITextAlignmentCenter;
