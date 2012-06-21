@@ -22,7 +22,7 @@
 
 + (WSDispatchMonitor*)monitorWithSize:(NSInteger)size;
 {
-    return [[WSDispatchMonitor alloc] initWithLimit:size];
+    return [[[WSDispatchMonitor alloc] initWithLimit:size] autorelease];
 }
 
 - (id)initWithLimit:(NSInteger)size;

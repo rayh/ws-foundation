@@ -150,6 +150,7 @@
         self.webView = [[UIWebView alloc] initWithFrame:self.bounds];
         self.webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         self.webView.delegate = self;
+        self.webView.scalesPageToFit = YES;
         self.webView.hidden = YES;
         self.webView.userInteractionEnabled = NO;
         [self addSubview:self.webView];
@@ -189,7 +190,10 @@
 - (void)setUrl:(NSURL*)url
 {
     if([self.originalUrl isEqual:url])
+    {
+        [self.delegate mediaView:self didFinishLoadingUrl:url];
         return;
+    }
     
     self.webView.hidden = YES;
     self.imageView.hidden = YES;

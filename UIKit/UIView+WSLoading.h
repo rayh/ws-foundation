@@ -11,5 +11,6 @@
 @interface UIView (WSLoading)
 - (void)showLoading;
 - (void)hideLoading;
-- (void)showLoadingWithOffset:(CGPoint)offset overlayColour:(UIColor *)colour;
+- (void)showLoadingWithText:(NSString*)text;
+- (void)showLoadingWithOffset:(CGPoint)offset overlayColour:(UIColor *)colour text:(NSString*)text;
 @end
