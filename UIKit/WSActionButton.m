@@ -97,6 +97,8 @@
     self.layer.borderWidth = 1.;
     self.layer.cornerRadius = 4.;
     self.layer.masksToBounds = YES;
+    self.layer.rasterizationScale = 2.;
+    self.layer.shouldRasterize = YES;
         
     self.titleLabel = [self createButtonLabel:self.bounds];
     [self addSubview:self.titleLabel];
