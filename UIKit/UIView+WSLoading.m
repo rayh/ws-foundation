@@ -166,11 +166,11 @@
     {
         loading = [[[WSLoadingView alloc] initWithFrame:self.bounds] autorelease];
         loading.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin|UIViewAutoresizingFlexibleRightMargin|UIViewAutoresizingFlexibleTopMargin|UIViewAutoresizingFlexibleBottomMargin;
+        loading.backgroundColor = colour;
+        loading.frame = CGRectOffset(self.bounds, offset.x, offset.y);
         [self addSubview:loading];
     }
     
-    loading.backgroundColor = colour;
-    loading.frame = CGRectOffset(self.bounds, offset.x, offset.y);
     [loading setText:text];    
     
     [loading performSelector:@selector(show) withObject:nil afterDelay:0.3];
