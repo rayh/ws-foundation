@@ -17,6 +17,8 @@ typedef void (^WSNetworkFailureBlock) (NSError *error);
 @property (nonatomic, copy) WSNetworkRequestModifierBlock globalRequestModifier;
 @property (nonatomic, copy) WSNetworkResponseModifierBlock globalResponseModifier;
 
++ (WSNetworkService*)sharedService;
+
 - (void)fetchUrl:(NSURL*)url 
           method:(NSString*)method
           modify:(WSNetworkRequestModifierBlock)requestModifier 
