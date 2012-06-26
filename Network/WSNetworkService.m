@@ -13,12 +13,6 @@
 @synthesize globalRequestModifier=_globalRequestModifier;
 @synthesize globalResponseModifier=_globalResponseModifier;
 
-- (void)dealloc
-{
-    self.globalRequestModifier = nil;
-    self.globalResponseModifier = nil;
-    [super dealloc];
-}
 
 - (void)fetchUrl:(NSURL*)url 
           method:(NSString*)method

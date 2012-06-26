@@ -10,9 +10,9 @@
 #import <QuartzCore/QuartzCore.h>
 
 @interface WSLoadingView : UIView
-@property (nonatomic, retain) UIView *transformView;
-@property (nonatomic, retain) UIView *contentView;
-@property (nonatomic, retain) UILabel *loadingLabel;
+@property (nonatomic) UIView *transformView;
+@property (nonatomic) UIView *contentView;
+@property (nonatomic) UILabel *loadingLabel;
 @end
 
 @implementation WSLoadingView
@@ -20,13 +20,6 @@
 @synthesize contentView=_contentView;
 @synthesize loadingLabel=_loadingLabel;
 
-- (void)dealloc
-{
-    self.transformView = nil;
-    self.contentView = nil;
-    self.loadingLabel = nil;
-    [super dealloc];
-}
 
 - (id)initWithFrame:(CGRect)frame
 {
@@ -34,11 +27,11 @@
         self.alpha = 0;
         self.backgroundColor = [UIColor clearColor]; //[UIColor colorWithWhite:0 alpha:0.5];
         
-        self.transformView =  [[[UIView alloc] initWithFrame:self.bounds] autorelease];
+        self.transformView =  [[UIView alloc] initWithFrame:self.bounds];
         self.transformView.backgroundColor = [UIColor clearColor];
         [self addSubview:self.transformView];
 
-        self.contentView = [[[UIView alloc] initWithFrame:CGRectMake(0, 0, 30, 30)] autorelease];
+        self.contentView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 30, 30)];
         self.contentView.backgroundColor = [UIColor colorWithWhite:0. alpha:0.3];
         self.contentView.layer.shadowColor = [UIColor colorWithWhite:0. alpha:0.5].CGColor;
         self.contentView.layer.shadowOpacity = 1.;
@@ -50,7 +43,7 @@
         self.contentView.layer.cornerRadius = 15;
         [self.transformView addSubview:self.contentView];
                 
-        UIActivityIndicatorView *activityView = [[[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite] autorelease];
+        UIActivityIndicatorView *activityView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
         activityView.hidesWhenStopped = YES;
         activityView.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin;
         activityView.center = CGPointMake(15,15);
@@ -164,7 +157,7 @@
     WSLoadingView *loading = [self wsFindLoadingView];
     if(!loading)
     {
-        loading = [[[WSLoadingView alloc] initWithFrame:self.bounds] autorelease];
+        loading = [[WSLoadingView alloc] initWithFrame:self.bounds];
         loading.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin|UIViewAutoresizingFlexibleRightMargin|UIViewAutoresizingFlexibleTopMargin|UIViewAutoresizingFlexibleBottomMargin;
         loading.backgroundColor = colour;
         loading.frame = CGRectOffset(self.bounds, offset.x, offset.y);

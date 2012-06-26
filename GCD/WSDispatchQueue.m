@@ -15,24 +15,24 @@
 
 + (WSDispatchQueue*)queueWithName:(NSString *)name
 {
-    return [[[WSDispatchQueue alloc] initWithName:name] autorelease];
+    return [[WSDispatchQueue alloc] initWithName:name];
 }
 
 + (WSDispatchQueue*)withQueue:(dispatch_queue_t)queue
 {
-    return [[[WSDispatchQueue alloc] initWithQueue:queue] autorelease];
+    return [[WSDispatchQueue alloc] initWithQueue:queue];
 }
 
 + (WSDispatchQueue*)mainQueue {
-    return [[[WSDispatchQueue alloc] initWithQueue:dispatch_get_main_queue()] autorelease];
+    return [[WSDispatchQueue alloc] initWithQueue:dispatch_get_main_queue()];
 }
 
 + (WSDispatchQueue*)currentQueue {
-    return [[[WSDispatchQueue alloc] initWithQueue:dispatch_get_current_queue()] autorelease];    
+    return [[WSDispatchQueue alloc] initWithQueue:dispatch_get_current_queue()];    
 }
 
 + (WSDispatchQueue*)globalQueue:(dispatch_queue_priority_t)priority  {
-    return [[[WSDispatchQueue alloc] initWithQueue:dispatch_get_global_queue(priority, 0)] autorelease];    
+    return [[WSDispatchQueue alloc] initWithQueue:dispatch_get_global_queue(priority, 0)];    
 }
 
 + (WSDispatchQueue*)defaultPriorityGlobalQueue  {
@@ -53,7 +53,6 @@
 
 - (void)dealloc {
     dispatch_release(queue_);
-    [super dealloc];
 }
 
 - (id)initWithName:(NSString*)queueName {

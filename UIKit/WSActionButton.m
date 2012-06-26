@@ -31,16 +31,9 @@
 @synthesize contentInsets=_contentInsets;
 @synthesize autoresizeWitdh=_autoresizeWitdh;
 
-- (void)dealloc
-{
-    self.tintColourActual = nil;
-    self.titleLabel = nil;
-    [super dealloc];
-}
-
 + (WSActionButton*)buttonWithLabel:(NSString *)label style:(WSActionButtonStyle)style
 {
-    WSActionButton *button = [[[WSActionButton alloc] initWithFrame:CGRectMake(0, 0, 160, 44) style:style] autorelease];
+    WSActionButton *button = [[WSActionButton alloc] initWithFrame:CGRectMake(0, 0, 160, 44) style:style];
     [button setTitle:label animated:NO];
     return button;
 }

@@ -56,7 +56,6 @@
     NSMutableArray *results = [NSMutableArray array];
     [self concurrentEach:^(id object) {        
         id result = mapBlock(object);
-        [[result retain] autorelease];
         [results addObject:result];
     } priority:priority];
     

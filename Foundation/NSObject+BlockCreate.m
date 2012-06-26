@@ -11,7 +11,7 @@
 
 + (id)createWithBlock:(void(^)(id instance))block
 {
-    id instance = [[[[self class] alloc] init] autorelease];
+    id instance = [[[self class] alloc] init];
     if(block)
         block(instance);
     

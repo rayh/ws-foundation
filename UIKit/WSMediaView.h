@@ -17,7 +17,7 @@
 
 @interface WSMediaView : UIView
 @property (nonatomic, weak) id <WSMediaViewDelegate> delegate;
-@property (nonatomic, assign) NSURL *url;
+@property (nonatomic) NSURL *url;
 
 //- (void)presentFullScreen;
 @end

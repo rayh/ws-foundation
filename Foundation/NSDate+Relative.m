@@ -108,7 +108,7 @@ typedef enum {
         case WSRelativeTimeIntervalManyMonths:  return [self formatTimeInterval:timeInterval/ONE_MONTH  unit:@"months"];
         case WSRelativeTimeIntervalManyYears:   return [self formatTimeInterval:timeInterval/ONE_YEAR   unit:@"years"];
         case WSRelativeTimeIntervalDistant: {
-            NSDateFormatter *df = [[[NSDateFormatter alloc] init] autorelease];
+            NSDateFormatter *df = [[NSDateFormatter alloc] init];
             [df setTimeStyle:NSDateFormatterFullStyle];
             [df setFormatterBehavior:NSDateFormatterBehavior10_4];
             [df setDateFormat:@"EEE, d LLL yyyy HH:mm:ss"];

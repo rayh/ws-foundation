@@ -19,7 +19,7 @@
 
 + (WSGradientColorLocation*)color:(UIColor*)color location:(CGFloat)location
 {
-    WSGradientColorLocation *cl = [[[WSGradientColorLocation alloc] init] autorelease];
+    WSGradientColorLocation *cl = [[WSGradientColorLocation alloc] init];
     cl.color = color;
     cl.location = location;
     return cl;
@@ -35,13 +35,7 @@
 
 + (WSGradient*)gradient
 {
-    return [[[WSGradient alloc] init] autorelease];
-}
-
-- (void)dealloc
-{
-    self.colorLocations = nil;
-    [super dealloc];
+    return [[WSGradient alloc] init];
 }
 
 - (id)init

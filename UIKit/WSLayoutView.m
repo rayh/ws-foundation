@@ -22,7 +22,7 @@
                      alignment:(WSLayoutViewAlignment)alignment
                        padding:(CGFloat)padding
 {
-    WSLayoutView *layoutView = [[[WSLayoutView alloc] initWithFrame:rect] autorelease];
+    WSLayoutView *layoutView = [[WSLayoutView alloc] initWithFrame:rect];
     layoutView.animationDuration = 0;
     layoutView.padding = padding;
     layoutView.alignment = alignment;

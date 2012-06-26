@@ -15,13 +15,12 @@
 
 + (WSDispatchSemaphore *)semaphoreWithPoolSize:(NSInteger)size
 {
-    return [[[WSDispatchSemaphore alloc] initWithSize:size] autorelease];
+    return [[WSDispatchSemaphore alloc] initWithSize:size];
 }
 
 - (void)dealloc
 {
     dispatch_release(self.semaphore);
-    [super dealloc];
 }
 
 - (id)initWithSize:(NSInteger)size

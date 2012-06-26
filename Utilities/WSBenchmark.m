@@ -15,18 +15,10 @@
 @synthesize lastStepAt=_lastStepAt;
 @synthesize finishedAt=_finishedAt;
 
-- (void)dealloc
-{
-    self.finishedAt = nil;
-    self.lastStepAt = nil;
-    self.startedAt = nil;
-    self.name = nil;
-    [super dealloc];
-}
 
 + (WSBenchmark*)benchmark:(NSString *)label
 {
-    WSBenchmark *bm = [[[WSBenchmark alloc] init] autorelease];
+    WSBenchmark *bm = [[WSBenchmark alloc] init];
     bm.name = label;
     bm.startedAt = [NSDate date];
     bm.lastStepAt = bm.startedAt;
