@@ -28,7 +28,6 @@
 - (void)dealloc
 {
     dispatch_release(self.dispatchGroup);
-    [super dealloc];
 }
 - (id)init
 {
@@ -40,7 +39,7 @@
 
 + (WSDispatchGroup*)group 
 {
-    return [[[WSDispatchGroup alloc] init] autorelease];
+    return [[WSDispatchGroup alloc] init];
 }
 
 - (void)async:(WSDispatchBlock)block queue:(WSDispatchQueue*)queue

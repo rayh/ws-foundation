@@ -10,9 +10,9 @@
 #import <QuartzCore/QuartzCore.h>
 
 @interface WSLoadingView : UIView
-@property (nonatomic) UIView *transformView;
-@property (nonatomic) UIView *contentView;
-@property (nonatomic) UILabel *loadingLabel;
+@property (nonatomic,strong) UIView *transformView;
+@property (nonatomic,strong) UIView *contentView;
+@property (nonatomic,strong) UILabel *loadingLabel;
 @end
 
 @implementation WSLoadingView
