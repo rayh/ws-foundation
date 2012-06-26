@@ -7,6 +7,7 @@
 
 #import "WSMediaView.h"
 #import <QuartzCore/QuartzCore.h>
+#import "WSNetworkService.h"
 
 @interface WSFullScreenMediaView : UIView
 @property (nonatomic, strong) WSMediaView *mediaView;
@@ -199,33 +200,29 @@
     self.imageView.hidden = YES;
     
     self.originalUrl = url;
-    
-    [NSURLConnection sendAsynchronousRequest:[NSURLRequest requestWithURL:url] 
-                                       queue:[NSOperationQueue mainQueue]
-                           completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
-                               if(error)
-                               {
-                                   NSLog(@"Failed to download %@ because %@", url, error);
-                                   [self.delegate mediaView:self didFailToLoad:url error:error];
-                                   return;
-                               }
-                               
-                               
-                               NSHTTPURLResponse *httpresponse = (NSHTTPURLResponse*)response;
-                               UIImage *image = [UIImage imageWithData:data];
-                                if(image)
-                                {
-                                    // Show image
-                                    self.imageView.image = image;
-                                    self.imageView.hidden = NO;
-                                    [self.delegate mediaView:self didFinishLoadingUrl:url];
-                                }
-                                else
-                                {
-                                    NSString *mimeType = [[httpresponse allHeaderFields] valueForKey:@"Content-Type"];
-                                    [self.webView loadData:data MIMEType:mimeType textEncodingName:@"UTF-8" baseURL:nil];
-                                }
-                           }];
+                
+    [[WSNetworkService sharedService] fetchUrl:url 
+                                        method:@"GET"
+                                        modify:nil
+                                       success:^(NSHTTPURLResponse *response, id object) 
+    {
+        UIImage *image = [UIImage imageWithData:object];
+        if(image)
+        {
+            // Show image
+            self.imageView.image = image;
+            self.imageView.hidden = NO;
+            [self.delegate mediaView:self didFinishLoadingUrl:url];
+        }
+        else
+        {
+            NSString *mimeType = [[response allHeaderFields] valueForKey:@"Content-Type"];
+            [self.webView loadData:object MIMEType:mimeType textEncodingName:@"UTF-8" baseURL:nil];
+        }
+    } failure:^(NSError *error) {
+        NSLog(@"Failed to download %@ because %@", url, error);
+        [self.delegate mediaView:self didFailToLoad:url error:error];
+    }];
 }
 
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
