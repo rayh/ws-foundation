@@ -7,7 +7,7 @@
 //
 
 #import "WSNetworkService.h"
-
+#import "NSURL+QueryString.h"
 
 @implementation WSNetworkService
 @synthesize globalRequestModifier=_globalRequestModifier;
@@ -23,12 +23,69 @@
     return service;
 }
 
+- (NSError*)encodeParameters:(NSDictionary*)parameters 
+                    encoding:(WSNetworkServiceParametersEncoding)encoding
+                     request:(NSMutableURLRequest*)request;
+{
+    NSError *error = nil;
+    
+    switch (encoding) {
+        case WSNetworkServiceParametersEncodingIgnore:
+            break;
+            
+        case WSNetworkServiceParametersEncodingJson:
+        {
+            @try {
+                NSData *postdata = [NSJSONSerialization dataWithJSONObject:parameters options:0 error:&error];
+                if(error)
+                    return error;
+                
+                [request setHTTPBody:postdata];
 
-- (void)fetchUrl:(NSURL*)url 
-          method:(NSString*)method
-          modify:(WSNetworkRequestModifierBlock)requestModifier 
-         success:(WSNetworkSuccessBlock)success
-         failure:(WSNetworkFailureBlock)failure
+            }
+            @catch (NSException *exception) {
+                NSLog(@"Json Encoding failued: %@", exception);
+                return [NSError errorWithDomain:@"WSNetworkJsonEncodeException" code:-1 
+                                       userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
+                                                 exception,@"exception",
+                                                 exception.name, NSLocalizedDescriptionKey,
+                                                 exception.reason, NSLocalizedFailureReasonErrorKey,
+                                                 nil]];
+            }
+            break;
+        }
+            
+        case WSNetworkServiceParametersEncodingQueryString:
+        {
+            request.URL = [request.URL URLByAppendingQueryStringParameters:parameters];
+            break;
+        }
+            
+        default:
+            break;
+    }
+    
+    return nil;
+}
+
+
+- (void)perform:(NSString *)method 
+            url:(NSURL *)url
+         modify:(WSNetworkRequestModifierBlock)requestModifier
+        success:(WSNetworkSuccessBlock)success
+        failure:(WSNetworkFailureBlock)failure
+{
+    [self perform:method url:url parameters:nil encoding:WSNetworkServiceParametersEncodingIgnore
+           modify:requestModifier success:success failure:failure];
+}
+
+- (void)perform:(NSString *)method 
+            url:(NSURL *)url
+     parameters:(NSDictionary*)parameters
+       encoding:(WSNetworkServiceParametersEncoding)encoding
+         modify:(WSNetworkRequestModifierBlock)requestModifier
+        success:(WSNetworkSuccessBlock)success
+        failure:(WSNetworkFailureBlock)failure
 {
     if(!url)
     {
@@ -45,6 +102,7 @@
     }
     
     NSDate *beginTime = [NSDate date];
+    
     
     WSNetworkFailureBlock errorBlock = ^(NSError *error) 
     {
@@ -64,6 +122,17 @@
                                                        timeoutInterval:30.];
     [request setHTTPMethod:method];
     
+    
+    // Query params
+    NSError *encodingError = [self encodeParameters:parameters encoding:encoding request:request];
+    
+    if(encodingError)
+    {
+        errorBlock(encodingError);
+        return;
+    }
+    
+    // Request Modification
     if(self.globalRequestModifier)
         self.globalRequestModifier(request);
     
@@ -93,17 +162,22 @@
                                    return;
                                }
                                
-                               NSError *parseError = nil;
+                               
+                               // Parsing
                                id object = data;
-                               
-                               if(self.globalResponseModifier)
-                                   object = self.globalResponseModifier(httpResponse, object, &parseError);
-                               
-                               if(parseError)
+                               if(httpResponse.statusCode!=204 && data.length>0)
                                {
-                                   errorBlock(parseError);
-                                   return;
-                               }                                   
+                                   NSError *parseError = nil;
+                                   
+                                   if(self.globalResponseModifier)
+                                       object = self.globalResponseModifier(httpResponse, object, &parseError);
+                                   
+                                   if(parseError)
+                                   {
+                                       errorBlock(parseError);
+                                       return;
+                                   }                                   
+                               }
                                
                                NSLog(@"[WSNetworkService] %@ %@ %d %db %0.2fs %@", 
                                      method,
@@ -116,4 +190,5 @@
                                success(httpResponse, object);
                            }];
 }
+
 @end

@@ -201,10 +201,10 @@
     
     self.originalUrl = url;
                 
-    [[WSNetworkService sharedService] fetchUrl:url 
-                                        method:@"GET"
-                                        modify:nil
-                                       success:^(NSHTTPURLResponse *response, id object) 
+    [[WSNetworkService sharedService] perform:@"GET" 
+                                          url:url 
+                                       modify:nil
+                                      success:^(NSHTTPURLResponse *response, id object) 
     {
         UIImage *image = [UIImage imageWithData:object];
         if(image)
