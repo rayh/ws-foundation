@@ -9,9 +9,14 @@
 #import "WSNetworkService.h"
 #import "NSURL+QueryString.h"
 
+@interface WSNetworkService ()
+@property (atomic, assign) NSInteger currentRequstCount;
+@end
+
 @implementation WSNetworkService
 @synthesize globalRequestModifier=_globalRequestModifier;
 @synthesize globalResponseModifier=_globalResponseModifier;
+@synthesize currentRequstCount=_currentRequstCount;
 
 + (WSNetworkService*)sharedService
 {
@@ -19,8 +24,23 @@
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         service = [[WSNetworkService alloc] init];
+        service.currentRequstCount = 0;
     });
     return service;
+}
+
+- (void)incrementActivityCount
+{
+    self.currentRequstCount++;
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
+}
+
+- (void)decrementActivityCount
+{
+    if(--self.currentRequstCount==0)
+    {
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+    }
 }
 
 - (NSError*)encodeParameters:(NSDictionary*)parameters 
@@ -139,11 +159,12 @@
     if(requestModifier)
         requestModifier(request);
     
-    
+    [[WSNetworkService sharedService] incrementActivityCount];
     [NSURLConnection sendAsynchronousRequest:request
                                        queue:[NSOperationQueue currentQueue]
                            completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
                                NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+                               [[WSNetworkService sharedService] decrementActivityCount];
                                
                                if(error)
                                {
