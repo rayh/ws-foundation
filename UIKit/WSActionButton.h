@@ -25,6 +25,7 @@ typedef enum {
 @property (nonatomic, retain) UIView *rightAccessoryView;
 @property (nonatomic, retain) NSString *leftAccessoryLabel;
 @property (nonatomic, retain) NSString *rightAccessoryLabel;
+@property (nonatomic, assign) NSString *title;
 
 + (WSActionButton*)buttonWithLabel:(NSString *)label style:(WSActionButtonStyle)style;
 - (void)setTitle:(NSString *)title animated:(BOOL)animated;

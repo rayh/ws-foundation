@@ -107,6 +107,7 @@
 
 - (void)hide
 {
+    __weak id weakSelf = self;
     [UIView animateWithDuration:0.2
                           delay:0 
                         options:UIViewAnimationOptionBeginFromCurrentState 
@@ -114,7 +115,9 @@
                          self.transformView.transform = CGAffineTransformMakeScale(1.5, 1.5);
                          self.alpha = 0;
                      } completion:^(BOOL finished) {
-                         [self removeFromSuperview];
+                         __strong id strongSelf = weakSelf;
+                         if(strongSelf)
+                             [strongSelf removeFromSuperview];
                      }];
 }
 @end

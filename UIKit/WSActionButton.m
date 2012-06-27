@@ -364,6 +364,16 @@
 //    [self setNeedsLayout];
 //}
 
+- (void)setTitle:(NSString*)title
+{
+    [self setTitle:title animated:NO];
+}
+
+- (NSString*)title
+{
+    return self.titleLabel.text;
+}
+
 - (void)setTitle:(NSString *)title animated:(BOOL)animated
 {
     if(!self.autoresizeWitdh)
