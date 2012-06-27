@@ -15,6 +15,9 @@
 #define RIGHT_ACCESSORY_TAG 12032324
 #define INNER_PADDING 10.
 
+#define LABEL_BRIGHT_COLOUR [UIColor colorWithWhite:1. alpha:0.90]
+#define LABEL_DARK_COLOUR [UIColor colorWithWhite:0. alpha:0.6]
+
 @interface WSActionButton ()
 {
     WSActionButtonStyle _style;
@@ -71,7 +74,7 @@
 {
     UILabel *label = [UILabel labelWithFrame:frame 
                        font:[UIFont boldSystemFontOfSize:16] 
-                     colour:[UIColor colorWithWhite:1. alpha:0.95]
+                     colour:LABEL_BRIGHT_COLOUR
                        text:nil];
     label.userInteractionEnabled = NO;
     label.textAlignment = UITextAlignmentCenter;
@@ -251,11 +254,11 @@
     switch(_style)
     {
         case WSActionButtonStyleDefault:
-            self.titleLabel.textColor = [UIColor colorWithWhite:0. alpha:0.6];
+            self.titleLabel.textColor = LABEL_DARK_COLOUR;
             self.titleLabel.shadowColor = [UIColor clearColor];
             break;
         default:
-            self.titleLabel.textColor = [UIColor colorWithWhite:1. alpha:0.8];
+            self.titleLabel.textColor = LABEL_BRIGHT_COLOUR;
             self.titleLabel.shadowColor = [UIColor colorWithWhite:0. alpha:0.3];
             break;
     }
@@ -363,6 +366,16 @@
 //                            self.frame.size.height);
 //    [self setNeedsLayout];
 //}
+
+- (void)setTitle:(NSString*)title
+{
+    [self setTitle:title animated:NO];
+}
+
+- (NSString*)title
+{
+    return self.titleLabel.text;
+}
 
 - (void)setTitle:(NSString *)title animated:(BOOL)animated
 {
