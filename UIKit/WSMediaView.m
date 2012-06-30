@@ -188,6 +188,30 @@
     return self.originalUrl;
 }
 
+- (void)setImage:(UIImage*)image
+{
+    self.imageView.image = image;
+    self.imageView.hidden = NO;
+    self.webView.hidden = YES;
+}
+
+- (UIImage *)image
+{
+    if(self.imageView.hidden)
+    {
+        CGRect rect = CGRectMake(0, 0, self.webView.frame.size.width, self.webView.frame.size.height);
+        UIGraphicsBeginImageContext(rect.size);
+        [self.webView.layer renderInContext:UIGraphicsGetCurrentContext()];
+        UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();
+        return image;
+    }
+    else
+    {
+        return self.imageView.image;
+    }
+}
+
 - (void)setUrl:(NSURL*)url
 {
     if([self.originalUrl isEqual:url])
@@ -198,8 +222,13 @@
     
     self.webView.hidden = YES;
     self.imageView.hidden = YES;
-    
+    self.imageView.image = nil;
     self.originalUrl = url;
+    
+    if(!self.originalUrl)
+    {
+        return;
+    }
                 
     [[WSNetworkService sharedService] perform:@"GET" 
                                           url:url 
@@ -210,8 +239,7 @@
         if(image)
         {
             // Show image
-            self.imageView.image = image;
-            self.imageView.hidden = NO;
+            [self setImage:image];
             [self.delegate mediaView:self didFinishLoadingUrl:url];
         }
         else
