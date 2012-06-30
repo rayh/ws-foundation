@@ -244,8 +244,10 @@
         }
         else
         {
-            NSString *mimeType = [[response allHeaderFields] valueForKey:@"Content-Type"];
-            [self.webView loadData:object MIMEType:mimeType textEncodingName:@"UTF-8" baseURL:nil];
+            // This should re-use cached data
+            [self.webView loadRequest:[NSURLRequest requestWithURL:url]];
+//            NSString *mimeType = [[response allHeaderFields] valueForKey:@"Content-Type"];
+//            [self.webView loadData:object MIMEType:mimeType textEncodingName:@"UTF-8" baseURL:nil];
         }
     } failure:^(NSError *error) {
         NSLog(@"Failed to download %@ because %@", url, error);
@@ -265,6 +267,11 @@
     
     self.webView.hidden = NO;
     [self.delegate mediaView:self didFinishLoadingUrl:self.originalUrl];
+}
+
+- (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
+{
+    NSLog(@"Failed to load %@", error);
 }
 
 //- (void)presentFullScreen
