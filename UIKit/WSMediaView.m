@@ -9,6 +9,13 @@
 #import <QuartzCore/QuartzCore.h>
 #import "WSNetworkService.h"
 
+typedef enum {
+    WSMediaViewContentTypeVideo,
+    WSMediaViewContentTypeAudio,
+    WSMediaViewContentTypeImage,
+    WSMediaViewContentTypeOther,
+} WSMediaViewContentType;
+
 @interface WSFullScreenMediaView : UIView
 @property (nonatomic, strong) WSMediaView *mediaView;
 @property (nonatomic) BOOL wasStatusBarHidden;
@@ -132,6 +139,7 @@
 @property (nonatomic, strong) UIWebView *webView;
 @property (nonatomic, strong) UIImageView *imageView;
 @property (nonatomic, strong) UIScrollView *scrollView;
+@property (nonatomic) WSMediaViewContentType contentType;
 @end
 
 @implementation WSMediaView
@@ -140,6 +148,7 @@
 @synthesize webView=_webView;
 @synthesize imageView=_imageView;
 @synthesize scrollView=_scrollView;
+@synthesize contentType=_contentType;
 
 - (id)initWithFrame:(CGRect)frame
 {
@@ -195,15 +204,78 @@
     self.webView.hidden = YES;
 }
 
+- (void)drawInnerRadialGradient:(CGContextRef)context rect:(CGRect)rect
+{
+    CGContextSaveGState(context);
+    CGColorSpaceRef space = CGColorSpaceCreateDeviceRGB();
+    
+    CGFloat comps[] = { 0.0,0.0,0.0,0.0,
+        0.0,0.0,0.0,1.0,
+        0.0,0.0,0.0,1.0};
+    CGFloat locs[] = {0,0.8,1};
+    CGGradientRef g = CGGradientCreateWithColorComponents(space, comps, locs, 3);        
+    CGPoint c = CGPointMake(rect.size.width/2, rect.size.height/2);
+    
+    //        CGMutablePathRef path = CGPathCreateMutable();
+    //        CGPathMoveToPoint(path, NULL, c.x, 0);
+    ////        CGPathAddLineToPoint(path, NULL, c.x, c.y-100);
+    //        CGPathAddArcToPoint(path, NULL, self.frame.size.width, c.y, c.x+100, c.y, 100);
+    //        CGPathAddLineToPoint(path, NULL, c.x, c.y);
+    //        
+    //        CGContextAddPath(context, path);
+    //        CGContextClip(context);
+    
+    CGContextClipToRect(context, rect);
+    CGContextDrawRadialGradient(context, g, c, 1.0f, c, 320.0f, 0);
+    CGGradientRelease(g);
+    CGColorSpaceRelease(space);
+    
+    CGContextRestoreGState(context);   
+}
+
+- (void)drawGlossOverlay:(CGContextRef)context rect:(CGRect)rect
+{
+    CGContextSaveGState(context);
+    CGColorSpaceRef space = CGColorSpaceCreateDeviceRGB();
+    CGFloat comps[] = { 1.0,1.0,1.0,0.0,
+        1.0,1.0,1.0,0.6,
+        1.0,1.0,1.0,0.0,
+        1.0,1.0,1.0,0.0};
+    CGFloat locs[] = {0,0.5,0.5001,1};
+    CGGradientRef glossGradient = CGGradientCreateWithColorComponents(space, comps, locs, 4);        
+    CGContextDrawLinearGradient(context, glossGradient, CGPointMake(0, 0), CGPointMake(rect.size.width, rect.size.height/2), 0);
+    CGGradientRelease(glossGradient);
+    CGColorSpaceRelease(space);
+    
+    CGContextRestoreGState(context);   
+}
+
 - (UIImage *)image
 {
-    if(self.imageView.hidden)
+    if(self.imageView.hidden && !self.imageView.image)
     {
+        
+        // FIXME: make it look more like its a screen shot of a webview and not something to be interacted with
+        BOOL wasHidden = self.webView.hidden;
+        self.webView.hidden = NO;
+        
         CGRect rect = CGRectMake(0, 0, self.webView.frame.size.width, self.webView.frame.size.height);
-        UIGraphicsBeginImageContext(rect.size);
-        [self.webView.layer renderInContext:UIGraphicsGetCurrentContext()];
+        UIGraphicsBeginImageContextWithOptions(rect.size, self.opaque, 0.0);
+        CGContextRef context = UIGraphicsGetCurrentContext();
+        [self.webView.layer renderInContext:context];
+        
+        
+        // Draw radial gradient
+        [self drawInnerRadialGradient:context rect:rect];  
+        
+        // Draw liner gradient
+        [self drawGlossOverlay:context rect:rect];
+        
+        // Create an image from this drawing context
         UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
         UIGraphicsEndImageContext();
+        
+        self.webView.hidden = wasHidden;
         return image;
     }
     else
@@ -234,21 +306,33 @@
                                           url:url 
                                        modify:nil
                                       success:^(NSHTTPURLResponse *response, id object) 
-    {
-        UIImage *image = [UIImage imageWithData:object];
-        if(image)
-        {
-            // Show image
-            [self setImage:image];
-            [self.delegate mediaView:self didFinishLoadingUrl:url];
-        }
-        else
-        {
-            // This should re-use cached data
-            [self.webView loadRequest:[NSURLRequest requestWithURL:url]];
-//            NSString *mimeType = [[response allHeaderFields] valueForKey:@"Content-Type"];
-//            [self.webView loadData:object MIMEType:mimeType textEncodingName:@"UTF-8" baseURL:nil];
-        }
+     {
+         NSString *mimeType = [[response allHeaderFields] valueForKey:@"Content-Type"];
+         if([mimeType hasPrefix:@"image/"]) 
+         {
+             self.contentType = WSMediaViewContentTypeImage;
+             UIImage *image = [UIImage imageWithData:object];
+             // Show image
+             [self setImage:image];
+             [self.delegate mediaView:self didFinishLoadingUrl:url];
+         }
+         else if([mimeType hasPrefix:@"audio/"])
+         {
+             self.contentType = WSMediaViewContentTypeAudio;
+             [self.webView loadRequest:[NSURLRequest requestWithURL:url]];
+         }
+         else if([mimeType hasPrefix:@"video/"]) 
+         {
+             self.contentType = WSMediaViewContentTypeVideo;
+             [self.webView loadRequest:[NSURLRequest requestWithURL:url]];
+         }
+         else 
+         {
+             self.contentType = WSMediaViewContentTypeOther;
+             [self.webView loadRequest:[NSURLRequest requestWithURL:url]];
+             // We could still load this, but how to present a web page?
+         }
+         
     } failure:^(NSError *error) {
         NSLog(@"Failed to download %@ because %@", url, error);
         [self.delegate mediaView:self didFailToLoad:url error:error];
@@ -265,13 +349,23 @@
     NSString *docTitle = [webView stringByEvaluatingJavaScriptFromString:@"document.title"];
     NSLog(@"Loaded media with title: %@",docTitle);
     
-    self.webView.hidden = NO;
-    [self.delegate mediaView:self didFinishLoadingUrl:self.originalUrl];
+    if(self.contentType==WSMediaViewContentTypeOther) 
+    {
+        // Screen shot it and dont use the webview
+        [self setImage:self.image];
+        [self.delegate mediaView:self didFinishLoadingUrl:self.originalUrl];
+    }
+    else
+    {
+        self.webView.hidden = NO;
+        [self.delegate mediaView:self didFinishLoadingUrl:self.originalUrl];
+    }
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
 {
     NSLog(@"Failed to load %@", error);
+    [self.delegate mediaView:self didFailToLoad:self.url error:error];
 }
 
 //- (void)presentFullScreen
