@@ -157,14 +157,6 @@ typedef enum {
         self.clipsToBounds = YES;
         self.backgroundColor = [UIColor darkGrayColor];
         
-        self.webView = [[UIWebView alloc] initWithFrame:self.bounds];
-        self.webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-        self.webView.delegate = self;
-        self.webView.scalesPageToFit = YES;
-        self.webView.hidden = YES;
-        self.webView.userInteractionEnabled = NO;
-        [self addSubview:self.webView];
-        
 //        self.scrollView = [[UIScrollView alloc] initWithFrame:self.bounds];
 //        self.scrollView.backgroundColor = [UIColor clearColor];
 ////        self.scrollView.delegate = self;
@@ -180,6 +172,21 @@ typedef enum {
         
     }
     return self;
+}
+
+- (void)loadWebView
+{
+    if(self.webView)
+        return;
+    
+    self.webView = [[UIWebView alloc] initWithFrame:self.bounds];
+    self.webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    self.webView.delegate = self;
+    self.webView.scalesPageToFit = YES;
+    self.webView.hidden = YES;
+    self.webView.userInteractionEnabled = NO;
+    self.webView.scrollView.scrollsToTop = NO;
+    [self addSubview:self.webView];
 }
 
 - (void)setUserInteractionEnabled:(BOOL)userInteractionEnabled
@@ -292,7 +299,9 @@ typedef enum {
         return;
     }
     
+    
     self.webView.hidden = YES;
+    self.webView = nil;
     self.imageView.hidden = YES;
     self.imageView.image = nil;
     self.originalUrl = url;
@@ -319,16 +328,19 @@ typedef enum {
          else if([mimeType hasPrefix:@"audio/"])
          {
              self.contentType = WSMediaViewContentTypeAudio;
+             [self loadWebView];
              [self.webView loadRequest:[NSURLRequest requestWithURL:url]];
          }
          else if([mimeType hasPrefix:@"video/"]) 
          {
              self.contentType = WSMediaViewContentTypeVideo;
+             [self loadWebView];
              [self.webView loadRequest:[NSURLRequest requestWithURL:url]];
          }
          else 
          {
              self.contentType = WSMediaViewContentTypeOther;
+             [self loadWebView];
              [self.webView loadRequest:[NSURLRequest requestWithURL:url]];
              // We could still load this, but how to present a web page?
          }
