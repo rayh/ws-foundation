@@ -9,13 +9,6 @@
 #import <QuartzCore/QuartzCore.h>
 #import "WSNetworkService.h"
 
-typedef enum {
-    WSMediaViewContentTypeVideo,
-    WSMediaViewContentTypeAudio,
-    WSMediaViewContentTypeImage,
-    WSMediaViewContentTypeOther,
-} WSMediaViewContentType;
-
 @interface WSFullScreenMediaView : UIView
 @property (nonatomic, strong) WSMediaView *mediaView;
 @property (nonatomic) BOOL wasStatusBarHidden;
@@ -137,9 +130,6 @@ typedef enum {
 @interface WSMediaView () <UIWebViewDelegate>
 @property (nonatomic, strong) NSURL *originalUrl;
 @property (nonatomic, strong) UIWebView *webView;
-@property (nonatomic, strong) UIImageView *imageView;
-@property (nonatomic, strong) UIScrollView *scrollView;
-@property (nonatomic) WSMediaViewContentType contentType;
 @end
 
 @implementation WSMediaView
@@ -147,7 +137,6 @@ typedef enum {
 @synthesize originalUrl=_originalUrl;
 @synthesize webView=_webView;
 @synthesize imageView=_imageView;
-@synthesize scrollView=_scrollView;
 @synthesize contentType=_contentType;
 
 - (id)initWithFrame:(CGRect)frame
@@ -156,14 +145,7 @@ typedef enum {
     if (self) {
         self.clipsToBounds = YES;
         self.backgroundColor = [UIColor darkGrayColor];
-        
-//        self.scrollView = [[UIScrollView alloc] initWithFrame:self.bounds];
-//        self.scrollView.backgroundColor = [UIColor clearColor];
-////        self.scrollView.delegate = self;
-//        self.scrollView.maximumZoomScale = 4.;
-//        self.scrollView.minimumZoomScale = 320./self.originalImageView.image.size.width; 
-//        [self.view addSubview:self.scrollView];        
-        
+                
         self.imageView = [[UIImageView alloc] initWithFrame:self.bounds];
         self.imageView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         self.imageView.contentMode = UIViewContentModeScaleAspectFill;
