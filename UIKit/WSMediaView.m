@@ -298,6 +298,10 @@
                                        modify:nil
                                       success:^(NSHTTPURLResponse *response, id object) 
      {
+         /// If this isnt what we asked for, ignore...
+         if(![response.URL isEqual:url])
+             return;
+         
          NSString *mimeType = [[response allHeaderFields] valueForKey:@"Content-Type"];
          if([mimeType hasPrefix:@"image/"]) 
          {
