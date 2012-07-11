@@ -146,7 +146,7 @@
 
 - (void)hideLoading
 {      
-    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(showLoadingActualWithData:) object:nil];
+    [NSObject cancelPreviousPerformRequestsWithTarget:self];
     WSLoadingView *loading = [self wsFindLoadingView];
     if(!loading)
         return;
