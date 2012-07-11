@@ -9,6 +9,16 @@
 #import "UIView+WSLoading.h"
 #import <QuartzCore/QuartzCore.h>
 
+@interface WSLoadingViewData : NSObject
+@property (nonatomic, strong) NSString *text;
+@property (nonatomic, strong) UIColor *colour;
+@property (nonatomic, assign) CGPoint offset;
+@end
+
+@implementation WSLoadingViewData
+@synthesize text,colour, offset;
+@end
+
 @interface WSLoadingView : UIView
 @property (nonatomic,strong) UIView *transformView;
 @property (nonatomic,strong) UIView *contentView;
@@ -135,13 +145,29 @@
 }
 
 - (void)hideLoading
-{  
+{      
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(showLoadingActualWithData:) object:nil];
     WSLoadingView *loading = [self wsFindLoadingView];
     if(!loading)
         return;
-    
-    [NSObject cancelPreviousPerformRequestsWithTarget:loading selector:@selector(show) object:nil];
+
     [loading hide];
+}
+
+- (void)showLoadingActualWithData:(WSLoadingViewData*)data
+{
+    WSLoadingView *loading = [self wsFindLoadingView];
+    if(!loading)
+    {
+        loading = [[WSLoadingView alloc] initWithFrame:self.bounds];
+        loading.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin|UIViewAutoresizingFlexibleRightMargin|UIViewAutoresizingFlexibleTopMargin|UIViewAutoresizingFlexibleBottomMargin;
+        loading.backgroundColor = data.colour;
+        loading.frame = CGRectOffset(self.bounds, data.offset.x, data.offset.y);
+        [self addSubview:loading];
+    }
+    
+    [loading setText:data.text];
+    [loading show];
 }
 
 - (void)showLoading
@@ -154,22 +180,14 @@
     [self showLoadingWithOffset:CGPointZero overlayColour:[UIColor clearColor] text:text];
 }
 
-
-- (void)showLoadingWithOffset:(CGPoint)offset overlayColour:(UIColor *)colour text:(NSString *)text
-{
-    WSLoadingView *loading = [self wsFindLoadingView];
-    if(!loading)
-    {
-        loading = [[WSLoadingView alloc] initWithFrame:self.bounds];
-        loading.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin|UIViewAutoresizingFlexibleRightMargin|UIViewAutoresizingFlexibleTopMargin|UIViewAutoresizingFlexibleBottomMargin;
-        loading.backgroundColor = colour;
-        loading.frame = CGRectOffset(self.bounds, offset.x, offset.y);
-        [self addSubview:loading];
-    }
+- (void)showLoadingWithOffset:( CGPoint)offset overlayColour:(UIColor *)colour text:(NSString *)text
+{  
+    WSLoadingViewData *data = [[WSLoadingViewData alloc] init];
+    data.colour = colour;
+    data.offset = offset;
+    data.text = text;
     
-    [loading setText:text];    
-    
-    [loading performSelector:@selector(show) withObject:nil afterDelay:0.3];
+    [self performSelector:@selector(showLoadingActualWithData:) withObject:data afterDelay:0.3];
     
     return;
 }
