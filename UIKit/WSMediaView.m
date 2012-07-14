@@ -299,7 +299,7 @@
                                       success:^(NSHTTPURLResponse *response, id object) 
      {
          /// If this isnt what we asked for, ignore...
-         if(![response.URL isEqual:url])
+         if(![response.URL isEqual:self.originalUrl])
              return;
          
          NSString *mimeType = [[response allHeaderFields] valueForKey:@"Content-Type"];
