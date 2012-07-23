@@ -12,5 +12,6 @@
 - (void)showLoading;
 - (void)hideLoading;
 - (void)showLoadingWithText:(NSString*)text;
+- (void)hideLoadingWithDelay:(NSTimeInterval)timeInterval;
 - (void)showLoadingWithOffset:(CGPoint)offset overlayColour:(UIColor *)colour text:(NSString*)text;
 @end
