@@ -28,11 +28,11 @@
 }
 
 - (NSArray *)arrayValueAtIndex:(NSUInteger)index{
-    return [self valueAtIndex:index ifKindOf:[NSArray class] defaultValue:[NSArray array]];
+    return [self valueAtIndex:index ifKindOf:[NSArray class] defaultValue:@[]];
 }
 
 - (NSDictionary *)dictionaryValueAtIndex:(NSUInteger)index {
-    return [self valueAtIndex:index ifKindOf:[NSDictionary class] defaultValue:[NSDictionary dictionary]];;
+    return [self valueAtIndex:index ifKindOf:[NSDictionary class] defaultValue:@{}];;
 }
 
 - (NSURL *)urlValueAtIndex:(NSUInteger)index 
@@ -42,23 +42,23 @@
 }
 
 - (NSInteger)intValueAtIndex:(NSUInteger)index defaultValue:(NSInteger)defaultValue {
-    return [[self valueAtIndex:index ifKindOf:[NSNumber class] defaultValue:[NSNumber numberWithInt:defaultValue]] intValue];
+    return [[self valueAtIndex:index ifKindOf:[NSNumber class] defaultValue:@(defaultValue)] intValue];
 }
 
 - (NSUInteger)unsignedIntValueAtIndex:(NSUInteger)index defaultValue:(NSUInteger)defaultValue {
-    return [[self valueAtIndex:index ifKindOf:[NSNumber class] defaultValue:[NSNumber numberWithUnsignedInt:defaultValue]] unsignedIntValue];
+    return [[self valueAtIndex:index ifKindOf:[NSNumber class] defaultValue:@(defaultValue)] unsignedIntValue];
 }
 
 - (double)doubleValueAtIndex:(NSUInteger)index defaultValue:(double)defaultValue {
-    return [[self valueAtIndex:index ifKindOf:[NSNumber class] defaultValue:[NSNumber numberWithDouble:defaultValue]] doubleValue];
+    return [[self valueAtIndex:index ifKindOf:[NSNumber class] defaultValue:@(defaultValue)] doubleValue];
 }
 
 - (double)floatValueAtIndex:(NSUInteger)index defaultValue:(float)defaultValue {
-    return [[self valueAtIndex:index ifKindOf:[NSNumber class] defaultValue:[NSNumber numberWithFloat:defaultValue]] floatValue];
+    return [[self valueAtIndex:index ifKindOf:[NSNumber class] defaultValue:@(defaultValue)] floatValue];
 }
 
 - (BOOL)boolValueAtIndex:(NSUInteger)index defaultValue:(BOOL)defaultValue {
-    return [[self valueAtIndex:index ifKindOf:[NSNumber class] defaultValue:[NSNumber numberWithBool:defaultValue]] boolValue];
+    return [[self valueAtIndex:index ifKindOf:[NSNumber class] defaultValue:@(defaultValue)] boolValue];
 }
 
 - (NSInteger)intValueAtIndex:(NSUInteger)index {

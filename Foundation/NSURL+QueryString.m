@@ -19,7 +19,7 @@
 {
     NSArray *urlComponents = [[self absoluteString] componentsSeparatedByString:@"?"];
     if(urlComponents.count<2)
-        return [NSDictionary dictionary];
+        return @{};
     
     NSMutableDictionary *parameters = [NSMutableDictionary dictionary];
     

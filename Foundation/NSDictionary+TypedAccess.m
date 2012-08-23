@@ -40,7 +40,7 @@
 }
 
 - (NSDictionary *)dictionaryValueForKeyPath:(NSString *)key {
-    return [self dictionaryValueForKeyPath:key defaultValue:[NSDictionary dictionary]];
+    return [self dictionaryValueForKeyPath:key defaultValue:@{}];
 }
 
 - (NSURL *)urlValueForKeyPath:(NSString *)key 
@@ -50,23 +50,23 @@
 }
 
 - (NSInteger)intValueForKeyPath:(NSString *)key defaultValue:(NSInteger)defaultValue {
-    return [[self valueForKeyPath:key ifKindOf:[NSNumber class] defaultValue:[NSNumber numberWithInt:defaultValue]] intValue];
+    return [[self valueForKeyPath:key ifKindOf:[NSNumber class] defaultValue:@(defaultValue)] intValue];
 }
 
 - (NSUInteger)unsignedIntValueForKeyPath:(NSString *)key defaultValue:(NSUInteger)defaultValue {
-    return [[self valueForKeyPath:key ifKindOf:[NSNumber class] defaultValue:[NSNumber numberWithUnsignedInt:defaultValue]] unsignedIntValue];
+    return [[self valueForKeyPath:key ifKindOf:[NSNumber class] defaultValue:@(defaultValue)] unsignedIntValue];
 }
 
 - (double)doubleValueForKeyPath:(NSString *)key defaultValue:(double)defaultValue {
-    return [[self valueForKeyPath:key ifKindOf:[NSNumber class] defaultValue:[NSNumber numberWithDouble:defaultValue]] doubleValue];
+    return [[self valueForKeyPath:key ifKindOf:[NSNumber class] defaultValue:@(defaultValue)] doubleValue];
 }
 
 - (double)floatValueForKeyPath:(NSString *)key defaultValue:(float)defaultValue {
-    return [[self valueForKeyPath:key ifKindOf:[NSNumber class] defaultValue:[NSNumber numberWithFloat:defaultValue]] floatValue];
+    return [[self valueForKeyPath:key ifKindOf:[NSNumber class] defaultValue:@(defaultValue)] floatValue];
 }
 
 - (BOOL)boolValueForKeyPath:(NSString *)key defaultValue:(BOOL)defaultValue {
-    return [[self valueForKeyPath:key ifKindOf:[NSNumber class] defaultValue:[NSNumber numberWithBool:defaultValue]] boolValue];
+    return [[self valueForKeyPath:key ifKindOf:[NSNumber class] defaultValue:@(defaultValue)] boolValue];
 }
 
 - (NSInteger)intValueForKeyPath:(NSString *)key {
