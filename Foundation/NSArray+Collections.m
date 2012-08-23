@@ -124,7 +124,7 @@
 
 -(NSDictionary *) partition:(id(^)(id))block{
     NSMutableDictionary *result = [NSMutableDictionary dictionary];
-    [self each:^(id item){
+    for(id item in self) {
         id key = block(item);
         NSMutableArray *objects = [result objectForKey:key];
         if(objects == nil){
@@ -132,7 +132,7 @@
         }
         [objects addObject:item];
         [result setObject:objects forKey:key];
-    }];
+    }
     return result;
 }
 
