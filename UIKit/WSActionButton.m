@@ -1,10 +1,3 @@
-//
-//  WSActionButton.m
-//
-//  Created by Ray Hilton on 31/05/12.
-//  Copyright (c) 2012 Wirestorm Pty Ltd. All rights reserved.
-//
-
 #import "WSActionButton.h"
 #import <QuartzCore/QuartzCore.h>
 #import "UILabel+WSFoundation.h"
@@ -22,7 +15,7 @@
 {
     WSActionButtonStyle _style;
 }
-@property (nonatomic, retain) UIColor *tintColourActual;
+@property (nonatomic, strong) UIColor *tintColourActual;
 @property (nonatomic, assign) UIEdgeInsets contentInsets;
 @end
 

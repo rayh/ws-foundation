@@ -1,10 +1,3 @@
-//
-//  WSActionButton.h
-//
-//  Created by Ray Hilton on 31/05/12.
-//  Copyright (c) 2012 Wirestorm Pty Ltd. All rights reserved.
-//
-
 #import <UIKit/UIKit.h>
 
 typedef enum {
@@ -18,14 +11,14 @@ typedef enum {
 
 @interface WSActionButton : UIControl
 @property (nonatomic, assign) WSActionButtonStyle tintStyle;
-@property (nonatomic, retain) UIColor *tintColour;
+@property (nonatomic, strong) UIColor *tintColour;
 @property (nonatomic, assign) BOOL autoresizeWitdh;
-@property (nonatomic, retain) UILabel *titleLabel;
-@property (nonatomic, retain) UIView *leftAccessoryView;
-@property (nonatomic, retain) UIView *rightAccessoryView;
-@property (nonatomic, retain) NSString *leftAccessoryLabel;
-@property (nonatomic, retain) NSString *rightAccessoryLabel;
-@property (nonatomic, assign) NSString *title;
+@property (nonatomic, strong) UILabel *titleLabel;
+@property (nonatomic, strong) UIView *leftAccessoryView;
+@property (nonatomic, strong) UIView *rightAccessoryView;
+@property (nonatomic, strong) NSString *leftAccessoryLabel;
+@property (nonatomic, strong) NSString *rightAccessoryLabel;
+@property (nonatomic) NSString *title;
 
 + (WSActionButton*)buttonWithLabel:(NSString *)label style:(WSActionButtonStyle)style;
 - (void)setTitle:(NSString *)title animated:(BOOL)animated;
