@@ -20,12 +20,6 @@
 @end
 
 @implementation WSActionButton
-@synthesize tintColourActual=_tintColourActual;
-@synthesize titleLabel=_titleLabel;
-@synthesize leftAccessoryView=_leftAccessoryView;
-@synthesize rightAccessoryView=_rightAccessoryView;
-@synthesize contentInsets=_contentInsets;
-@synthesize autoresizeWitdh=_autoresizeWitdh;
 
 + (WSActionButton*)buttonWithLabel:(NSString *)label style:(WSActionButtonStyle)style
 {
@@ -78,7 +72,7 @@
 
 - (void)initializeButton
 {
-    self.autoresizeWitdh = YES;
+    self.autoresizeWidth = YES;
     self.contentInsets = UIEdgeInsetsMake(0, 20, 0, 20);
     self.userInteractionEnabled = YES;
     self.accessibilityTraits = UIAccessibilityTraitButton;
@@ -372,7 +366,7 @@
 
 - (void)setTitle:(NSString *)title animated:(BOOL)animated
 {
-    if(!self.autoresizeWitdh)
+    if(!self.autoresizeWidth)
     {
         self.titleLabel.text = title;
         [self setNeedsLayout];

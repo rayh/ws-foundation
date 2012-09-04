@@ -12,7 +12,7 @@ typedef enum {
 @interface WSActionButton : UIControl
 @property (nonatomic, assign) WSActionButtonStyle tintStyle;
 @property (nonatomic, strong) UIColor *tintColour;
-@property (nonatomic, assign) BOOL autoresizeWitdh;
+@property (nonatomic, assign) BOOL autoresizeWidth;
 @property (nonatomic, strong) UILabel *titleLabel;
 @property (nonatomic, strong) UIView *leftAccessoryView;
 @property (nonatomic, strong) UIView *rightAccessoryView;
