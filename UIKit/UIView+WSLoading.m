@@ -42,7 +42,7 @@
         [self addSubview:self.transformView];
 
         self.contentView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 30, 30)];
-        self.contentView.backgroundColor = [UIColor colorWithWhite:0. alpha:0.4];
+        self.contentView.backgroundColor = [UIColor colorWithWhite:0. alpha:0.3];
         self.contentView.layer.shadowColor = [UIColor colorWithWhite:0. alpha:0.5].CGColor;
         self.contentView.layer.shadowOpacity = 1.;
         self.contentView.layer.shadowOffset = CGSizeMake(0,0);
