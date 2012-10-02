@@ -1,46 +1,54 @@
-//
-//  WSLayoutView.m
-//
-//  Created by Ray Hilton on 17/05/12.
-//  Copyright (c) 2012 Wirestorm Pty Ltd. All rights reserved.
-//
-
 #import "WSLayoutView.h"
+
+@interface UIFlexibleSpaceView : UIView
+@end
+
+@implementation UIFlexibleSpaceView
+@end
 
 @interface WSLayoutView () {
     CGSize _sizeOfContents;
+    BOOL _hasBeenInitialized;
 }
 @end
 
 @implementation WSLayoutView
-@synthesize alignment=_alignment;
-@synthesize padding=_padding;
-@synthesize animationDuration=_animationDuration;
+
+
++ (UIFlexibleSpaceView*)flexibleSpace
+{
+    UIFlexibleSpaceView *view = [[UIFlexibleSpaceView alloc] initWithFrame:CGRectZero];
+    view.autoresizingMask = UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth;
+    return view;
+}
+
++ (UIView*)fixedSpaceWithSize:(CGFloat)size
+{
+    return [[UIView alloc] initWithFrame:CGRectMake(0, 0, size, size)];
+}
+
 
 + (WSLayoutView*)layoutInFrame:(CGRect)rect 
                          views:(NSArray*)views
                      alignment:(WSLayoutViewAlignment)alignment
-                       padding:(CGFloat)padding
 {
     WSLayoutView *layoutView = [[WSLayoutView alloc] initWithFrame:rect];
     layoutView.animationDuration = 0;
-    layoutView.padding = padding;
     layoutView.alignment = alignment;
     for(UIView *view in views) {
         [layoutView addSubview:view];
     }
     
-    [layoutView updateSubviewPostions];
+    [layoutView updateSubviewPostionsWithSize:rect.size];
     return layoutView;
 }
 
 + (WSLayoutView*)layoutInFrame:(CGRect)rect 
-                       views:(NSArray*)views
-                   alignment:(WSLayoutViewAlignment)alignment 
-                     padding:(CGFloat)padding
-                    duration:(CGFloat)animationDuration
+                         views:(NSArray*)views
+                     alignment:(WSLayoutViewAlignment)alignment
+                      duration:(CGFloat)animationDuration
 {
-    WSLayoutView *layoutView = [self layoutInFrame:rect views:views alignment:alignment padding:padding];
+    WSLayoutView *layoutView = [self layoutInFrame:rect views:views alignment:alignment];
     layoutView.animationDuration = animationDuration;
     return layoutView;
 }
@@ -50,125 +58,168 @@
 {
     self = [super initWithFrame:frame];
     if (self) {
-        self.padding = 0.;
         self.animationDuration = 0.;
-        self.alignment = WSLayoutViewAlignmentRight;
+        self.alignment = WSLayoutViewAlignmentHorizontal;
     }
     return self;
 }
 
-- (CGSize)sizeOfContents
+- (void)adjustViewFrameOriginAndSizeInNonAlignmentDirection:(UIView*)view
 {
-    [self updateSubviewPostions];
-    return _sizeOfContents;
+    if(self.alignment==WSLayoutViewAlignmentVertical)
+        if(view.autoresizingMask&UIViewAutoresizingFlexibleWidth)
+            view.frame = CGRectMake(0, 0, self.frame.size.width, view.frame.size.height);
+        else
+            view.frame = CGRectMake(view.frame.origin.x, 0, view.frame.size.width, view.frame.size.height);
+    else
+        if(view.autoresizingMask&UIViewAutoresizingFlexibleHeight)
+            view.frame = CGRectMake(0, 0, view.frame.size.width, self.frame.size.height);
+        else
+            view.frame = CGRectMake(0, view.frame.origin.y, view.frame.size.width, view.frame.size.height);
 }
 
-//- (void)animateSubviewPositions
-//{
-//    [UIView animateWithDuration:self.animationDuration animations:^{
-//        [self updateSubviewPostions];
-//    }];
-//}
-
-- (void)updateSubviewPostions
+- (CGFloat)setFrameOnView:(UIView*)view withOffset:(CGFloat)offset flexibleViewSize:(CGFloat)sizeOfFlexibleViews
 {
-    switch(self.alignment) 
+    [self adjustViewFrameOriginAndSizeInNonAlignmentDirection:view];
+    
+    if([self isViewFlexibleInAlignmentDirection:view])
     {
-        case WSLayoutViewAlignmentRight:
+        if(self.alignment==WSLayoutViewAlignmentVertical)
+            view.frame = CGRectMake(view.frame.origin.x, offset, view.frame.size.width, sizeOfFlexibleViews);
+        else
+            view.frame = CGRectMake(offset, view.frame.origin.y, sizeOfFlexibleViews, view.frame.size.height);
+
+        return sizeOfFlexibleViews;
+    }
+    else
+    {
+        if(self.alignment==WSLayoutViewAlignmentVertical)
         {
-            // Start from the right
-            CGFloat xOffset = self.frame.size.width;
-            CGFloat width = 0;
-            for(int i = self.subviews.count-1; i >=0; i--) {
-                UIView *view = [self.subviews objectAtIndex:i];
-                if(view.hidden || view.alpha == 0)
-                    continue;
-                
-                CGFloat newXPos = xOffset - view.frame.size.width;
-                view.frame = CGRectMake(newXPos, 
-                                        view.frame.origin.y,
-                                        view.frame.size.width, 
-                                        view.frame.size.height);
-                xOffset = view.frame.origin.x - self.padding;
-                width+=view.frame.size.width+self.padding;
-            }
-            _sizeOfContents = CGSizeMake(width-self.padding, self.frame.size.height);
-            break;
+            view.frame = CGRectMake(view.frame.origin.x,
+                                    offset,
+                                    view.frame.size.width,
+                                    view.frame.size.height);
+            return view.frame.size.height;
         }
-            
-        case WSLayoutViewAlignmentLeft:
+        else
         {
-            CGFloat width = 0;
-            for(UIView *view in self.subviews) {
-                if(view.hidden || view.alpha == 0)
-                    continue;
-                
-                view.frame = CGRectMake(width, 
-                                        view.frame.origin.y,
-                                        view.frame.size.width, 
-                                        view.frame.size.height);
-                
-                width+=view.frame.size.width+self.padding;
-            }
-            _sizeOfContents = CGSizeMake(width-self.padding, self.frame.size.height);
-            break;
+            view.frame = CGRectMake(offset,
+                                    view.frame.origin.y,
+                                    view.frame.size.width,
+                                    view.frame.size.height);
+            return view.frame.size.width;
         }
-            
-        case WSLayoutViewAlignmentTop:
+    }
+}
+
+- (BOOL)isViewFlexibleInAlignmentDirection:(UIView*)view
+{
+    if(self.alignment==WSLayoutViewAlignmentVertical)
+        return view.autoresizingMask&UIViewAutoresizingFlexibleHeight;
+    else
+        return view.autoresizingMask&UIViewAutoresizingFlexibleWidth;
+}
+
+- (void)updateSubviewPostionsWithSize:(CGSize)size
+{
+    // calculate sizes of views
+    CGFloat maxSizeInNonAlignmentDirection = 0;
+    CGFloat sizeOfFixedViews = 0;
+    CGFloat sizeOfFlexibleViews = 0;
+    NSInteger numberOfFlexibleViews = 0;
+    for(UIView *view in self.subviews) {
+        if(view.hidden || view.alpha == 0)
+            continue;
+
+        CGFloat viewSizeInAlignmentDirection = 0;
+        CGSize viewSize;
+        
+        
+        if(self.alignment==WSLayoutViewAlignmentVertical)
         {
-            CGFloat height = 0;
-            for(UIView *view in self.subviews) {
-                if(view.hidden || view.alpha == 0)
-                    continue;
-                
-                view.frame = CGRectMake(view.frame.origin.x, 
-                                        height,
-                                        view.frame.size.width, 
-                                        view.frame.size.height);
-                height+=view.frame.size.height+self.padding;
-            }
-            _sizeOfContents = CGSizeMake(self.frame.size.width, height-self.padding);
-            break;
+            viewSize = [view sizeThatFits:CGSizeMake(size.width, self.frame.size.height)];
+            viewSizeInAlignmentDirection=viewSize.height;
+            maxSizeInNonAlignmentDirection = MAX(maxSizeInNonAlignmentDirection, viewSize.width);
+            view.frame = CGRectMake(0,0, self.frame.size.width, viewSize.height);
         }
-            
-        case WSLayoutViewAlignmentBottom:
+        else
         {
-            CGFloat yOffset = self.frame.size.height;
-            CGFloat height = 0;
-            for(int i = self.subviews.count-1; i >=0; i--) {
-                UIView *view = [self.subviews objectAtIndex:i];
-                if(view.hidden || view.alpha == 0)
-                    continue;
-                
-                CGFloat newYPos = yOffset - view.frame.size.height;
-                view.frame = CGRectMake(view.frame.origin.x, 
-                                        newYPos,
-                                        view.frame.size.width, 
-                                        view.frame.size.height);
-                yOffset = view.frame.origin.y - self.padding;
-                height+=view.frame.size.height + self.padding;
-            }
-            _sizeOfContents = CGSizeMake(self.frame.size.width, height-self.padding);
-            break;
+            viewSize = [view sizeThatFits:CGSizeMake(self.frame.size.width, size.height)];
+            viewSizeInAlignmentDirection=viewSize.width;
+            maxSizeInNonAlignmentDirection = MAX(maxSizeInNonAlignmentDirection, viewSize.height);
+            view.frame = CGRectMake(0,0, viewSize.width, self.frame.size.height);
         }
+    
+        
+        // Is this a stretchable view or fixed size?
+        if([self isViewFlexibleInAlignmentDirection:view])
+        {
+            sizeOfFlexibleViews+=viewSizeInAlignmentDirection;
+            numberOfFlexibleViews++;
+        }
+        else
+            sizeOfFixedViews+=viewSizeInAlignmentDirection;
+    }
+    
+    // Calculate optimum size of view
+    CGFloat remainingSize = 0;
+    if(self.alignment==WSLayoutViewAlignmentVertical)
+    {
+        remainingSize = MAX(0, self.frame.size.height - sizeOfFixedViews);
+        _sizeOfContents = CGSizeMake(maxSizeInNonAlignmentDirection, sizeOfFixedViews+sizeOfFlexibleViews);
+    }
+    else
+    {
+        remainingSize = MAX(0, self.frame.size.width - sizeOfFixedViews);
+        _sizeOfContents = CGSizeMake(sizeOfFixedViews+sizeOfFlexibleViews, maxSizeInNonAlignmentDirection);
+    }
+
+    // Calculate size of flexible views
+    CGFloat heightOfEachFlexibleView = remainingSize / numberOfFlexibleViews;
+  
+    
+    // Calculate offsets
+    CGFloat offset = 0;
+    for(UIView *view in self.subviews) {
+        if(view.hidden || view.alpha == 0)
+            continue;
+      
+        offset+=[self setFrameOnView:view withOffset:offset flexibleViewSize:heightOfEachFlexibleView];
     }
 }
 
 - (void)layoutSubviews
 {
-    if(self.animationDuration>0)
+    if(self.animationDuration>0 && _hasBeenInitialized)
     {
         [UIView animateWithDuration:self.animationDuration 
                               delay:0
                             options:UIViewAnimationOptionBeginFromCurrentState 
                          animations:^{
-            [self updateSubviewPostions];
+            [self updateSubviewPostionsWithSize:self.frame.size];
         } completion:nil];
     }
     else 
     {
-        [self updateSubviewPostions];
+        [self updateSubviewPostionsWithSize:self.frame.size];
+        _hasBeenInitialized = YES;
     }
     
+}
+
+- (CGSize)sizeThatFits:(CGSize)size {
+  [self updateSubviewPostionsWithSize:size];
+  return _sizeOfContents;
+}
+
+
+- (void)addFlexibleSpace
+{
+    [self addSubview:[WSLayoutView flexibleSpace]];
+}
+
+- (void)addFixedSpaceWithSize:(CGFloat)size
+{
+    [self addSubview:[WSLayoutView fixedSpaceWithSize:size]];
 }
 @end
