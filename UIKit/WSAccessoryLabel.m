@@ -20,8 +20,11 @@
 
 @implementation WSAccessoryLabel
 
-+ (WSAccessoryLabel*)accessortLabel:(NSString*)label colour:(UIColor*)colour;
++ (WSAccessoryLabel*)accessoryLabel:(NSString*)label colour:(UIColor*)colour;
 {
+    if(!label || label.length==0)
+        return nil;
+    
     WSAccessoryLabel *badge = [[WSAccessoryLabel alloc] initWithFrame:CGRectZero];
     [badge setText:label];
     [badge setColour:colour];

@@ -9,5 +9,5 @@
 #import <UIKit/UIKit.h>
 
 @interface WSAccessoryLabel : UIView
-+ (WSAccessoryLabel*)accessortLabel:(NSString*)label colour:(UIColor*)colour;
++ (WSAccessoryLabel*)accessoryLabel:(NSString*)label colour:(UIColor*)colour;
 @end
