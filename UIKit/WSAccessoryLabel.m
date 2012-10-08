@@ -48,7 +48,7 @@
         //        self.badgeLabel.layer.borderWidth = 2;
         self.badgeLabel.textAlignment = UITextAlignmentCenter;
         self.badgeLabel.shadowColor = [UIColor colorWithWhite:0 alpha:0.4];
-        self.badgeLabel.shadowOffset = CGSizeMake(-1, -1);
+        self.badgeLabel.shadowOffset = CGSizeMake(0, -1);
         self.badgeLabel.textColor = [UIColor whiteColor];
         self.badgeLabel.font = [UIFont fontWithName:@"HelveticaNeue-Bold" size:10];
         [self addSubview:self.badgeLabel];

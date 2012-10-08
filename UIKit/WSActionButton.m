@@ -66,7 +66,7 @@
     label.userInteractionEnabled = NO;
     label.textAlignment = UITextAlignmentCenter;
     label.shadowColor = [UIColor colorWithWhite:0. alpha:0.3];
-    label.shadowOffset = CGSizeMake(-1,-1);
+    label.shadowOffset = CGSizeMake(0,-1);
     return label;
 }
 
