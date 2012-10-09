@@ -21,10 +21,10 @@
     CGFloat originalHue, originalSaturation, originalBrightness, originalAlpha;
     [self getHue:&originalHue saturation:&originalSaturation brightness:&originalBrightness alpha:&originalAlpha];
     
-    originalHue+=hue;
-    originalSaturation+=saturation;
-    originalBrightness+=brightness;
-    originalAlpha+=alpha;
+    originalHue         =MIN(MAX(0, originalHue+hue), 1.);
+    originalSaturation  =MIN(MAX(0, originalSaturation+saturation), 1.);
+    originalBrightness  =MIN(MAX(0, originalBrightness+brightness), 1.);
+    originalAlpha       =MIN(MAX(0, originalAlpha+alpha), 1.);
     
     return [UIColor colorWithHue:originalHue saturation:originalSaturation brightness:originalBrightness alpha:originalAlpha];
 }

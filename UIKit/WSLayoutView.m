@@ -110,6 +110,8 @@
             return view.frame.size.width;
         }
     }
+    
+    NSLog(@"WSLayoutView: Set FRAME on %@ to %@", view, NSStringFromCGRect(view.frame));
 }
 
 - (BOOL)isViewFlexibleInAlignmentDirection:(UIView*)view
