@@ -68,7 +68,7 @@
     //    self.layer.borderColor = colour.CGColor;
     CAGradientLayer *gradientLayer = (CAGradientLayer*)[self layer];
     gradientLayer.colors = @[
-    (id)[colour colourByAdjustingHue:0 saturation:0 brightness:0.1 alpha:0].CGColor,
+    (id)[colour colourByAdjustingHue:0 saturation:0 brightness:0.2 alpha:0].CGColor,
     (id)[colour colourByAdjustingHue:0 saturation:0 brightness:-0.1 alpha:0].CGColor];
     //    [self setNeedsDisplay];
 }
