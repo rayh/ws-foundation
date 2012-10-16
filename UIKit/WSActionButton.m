@@ -318,7 +318,7 @@
         labelSize.width+=self.rightAccessoryView.frame.size.width+INNER_PADDING;
     
     return CGSizeMake(self.contentInsets.left + labelSize.width + self.contentInsets.right,
-                      self.contentInsets.top + size.height + self.contentInsets.bottom);
+                      self.contentInsets.top + labelSize.height + self.contentInsets.bottom);
 }
 
 - (void)layoutSubviews
