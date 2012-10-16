@@ -16,7 +16,6 @@
     WSActionButtonStyle _style;
 }
 @property (nonatomic, strong) UIColor *tintColourActual;
-@property (nonatomic, assign) UIEdgeInsets contentInsets;
 @end
 
 @implementation WSActionButton
@@ -304,6 +303,23 @@
 }
 
 #pragma mark - layout
+
+- (CGSize)sizeThatFits:(CGSize)size
+{
+    CGSize innerSize = CGSizeMake(size.width-self.contentInsets.left-self.contentInsets.right,
+                                  size.height-self.contentInsets.top-self.contentInsets.bottom);
+    
+    CGSize labelSize = [self.titleLabel.text sizeWithFont:self.titleLabel.font constrainedToSize:CGSizeMake(INT32_MAX, innerSize.height)];
+    
+    if(self.leftAccessoryView)
+        labelSize.width+=self.leftAccessoryView.frame.size.width+INNER_PADDING;
+    
+    if(self.rightAccessoryView)
+        labelSize.width+=self.rightAccessoryView.frame.size.width+INNER_PADDING;
+    
+    return CGSizeMake(self.contentInsets.left + labelSize.width + self.contentInsets.right,
+                      self.contentInsets.top + size.height + self.contentInsets.bottom);
+}
 
 - (void)layoutSubviews
 {
