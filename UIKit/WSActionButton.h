@@ -6,11 +6,16 @@ typedef enum {
     WSActionButtonStyleInfo    = 2,
     WSActionButtonStyleSuccess = 3,
     WSActionButtonStyleDanger  = 4,
-    WSActionButtonStyleWarning = 5
+    WSActionButtonStyleWarning = 5,
+    WSActionButtonStyleCustom
 } WSActionButtonStyle;
 
+typedef enum {
+    WSActionButtonTextLight,
+    WSActionButtonTextDark,
+} WSActionButtonText;
+
 @interface WSActionButton : UIControl
-@property (nonatomic, assign) WSActionButtonStyle tintStyle;
 @property (nonatomic, assign) UIEdgeInsets contentInsets;
 @property (nonatomic, strong) UIColor *tintColour;
 @property (nonatomic, assign) BOOL autoresizeWidth;
@@ -22,7 +27,7 @@ typedef enum {
 @property (nonatomic) NSString *title;
 
 + (WSActionButton*)buttonWithLabel:(NSString *)label style:(WSActionButtonStyle)style;
++ (WSActionButton*)buttonWithLabel:(NSString *)label colour:(UIColor*)colour textStyle:(WSActionButtonText)textStyle;
 - (void)setTitle:(NSString *)title animated:(BOOL)animated;
-- (void)setTintStyle:(WSActionButtonStyle)style;
 
 @end

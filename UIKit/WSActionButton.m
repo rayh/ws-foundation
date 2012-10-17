@@ -13,26 +13,72 @@
 
 @interface WSActionButton ()
 {
-    WSActionButtonStyle _style;
+    WSActionButtonText _textStyle;
 }
 @property (nonatomic, strong) UIColor *tintColourActual;
 @end
 
 @implementation WSActionButton
 
-+ (WSActionButton*)buttonWithLabel:(NSString *)label style:(WSActionButtonStyle)style
++ (UIColor*)colourForTintStyle:(WSActionButtonStyle)style
 {
-    WSActionButton *button = [[WSActionButton alloc] initWithFrame:CGRectMake(0, 0, 160, 44) style:style];
+    switch(style)
+    {
+        case WSActionButtonStyleDefault:
+            return [UIColor colourWithInt:0xCCCCCC];
+            
+        case WSActionButtonStyleWarning:
+            return [UIColor colourWithInt:0xFAA732];
+            
+        case WSActionButtonStyleDanger:
+            return [UIColor colourWithInt:0xBD362F];
+            
+        case WSActionButtonStyleSuccess:
+            return [UIColor colourWithInt:0x51A351];
+            
+        case WSActionButtonStyleInfo:
+            return [UIColor colourWithInt:0x2F96B4];
+            
+        case WSActionButtonStylePrimary:
+            return [UIColor colourWithInt:0x0074CC];
+            
+        default:
+            return nil;
+    }
+}
+
++ (WSActionButtonText)textStyleForTintStyle:(WSActionButtonStyle)style
+{
+    switch(style)
+    {
+        case WSActionButtonStyleDefault:
+        case WSActionButtonStyleCustom:
+            return WSActionButtonTextDark;
+            
+        default:
+            return WSActionButtonTextLight;
+    }
+}
+
++ (WSActionButton*)buttonWithLabel:(NSString *)label colour:(UIColor*)colour textStyle:(WSActionButtonText)textStyle
+{
+    WSActionButton *button = [[WSActionButton alloc] initWithFrame:CGRectMake(0, 0, 160, 44) tintColour:colour textStyle:textStyle];
     [button setTitle:label animated:NO];
     return button;
 }
 
++ (WSActionButton*)buttonWithLabel:(NSString *)label style:(WSActionButtonStyle)style
+{
+    return [self buttonWithLabel:label colour:[self colourForTintStyle:style] textStyle:[self textStyleForTintStyle:style]];
+}
 
-- (id)initWithFrame:(CGRect)frame style:(WSActionButtonStyle)style
+
+- (id)initWithFrame:(CGRect)frame tintColour:(UIColor*)colour textStyle:(WSActionButtonText)textStyle
 {
     if(self = [self initWithFrame:frame])
     {
-        [self setTintStyle:style];
+        [self setTextStyle:textStyle];
+        [self setTintColour:colour];
     }
     return self;
 }
@@ -62,10 +108,23 @@
                        font:[UIFont boldSystemFontOfSize:16] 
                      colour:LABEL_BRIGHT_COLOUR
                        text:nil];
+    
+    switch(_textStyle)
+    {
+        case WSActionButtonTextDark:
+            label.textColor = LABEL_DARK_COLOUR;
+            label.shadowColor = [UIColor colorWithWhite:1. alpha:0.4];
+            label.shadowOffset = CGSizeMake(0,1);
+            break;
+        default:
+            label.textColor = LABEL_BRIGHT_COLOUR;
+            label.shadowColor = [UIColor colorWithWhite:0. alpha:0.4];
+            label.shadowOffset = CGSizeMake(0,-1);
+            break;
+    }
+    
     label.userInteractionEnabled = NO;
     label.textAlignment = UITextAlignmentCenter;
-    label.shadowColor = [UIColor colorWithWhite:0. alpha:0.3];
-    label.shadowOffset = CGSizeMake(0,-1);
     return label;
 }
 
@@ -100,11 +159,9 @@
 
 - (void)setLeftAccessoryView:(UIView *)leftAccessoryView
 {
-    if(!leftAccessoryView)
-    {
-        [[self leftAccessoryView] removeFromSuperview];
-    }
-    else
+    [[self leftAccessoryView] removeFromSuperview];
+
+    if(leftAccessoryView)
     {
         leftAccessoryView.tag = LEFT_ACCESSORY_TAG;
         [self addSubview:leftAccessoryView];
@@ -113,11 +170,9 @@
 
 - (void)setRightAccessoryView:(UIView *)rightAccessoryView
 {
-    if(!rightAccessoryView)
-    {
-        [[self rightAccessoryView] removeFromSuperview];
-    }
-    else
+    [[self rightAccessoryView] removeFromSuperview];
+    
+    if(rightAccessoryView)
     {
         rightAccessoryView.tag = RIGHT_ACCESSORY_TAG;
         [self addSubview:rightAccessoryView];
@@ -172,36 +227,14 @@
 
 #pragma mark - tinting
 
-- (WSActionButtonStyle)tintStyle
+- (void)setTextStyle:(WSActionButtonText)textStyle
 {
-    return _style;
+    _textStyle = textStyle;
 }
 
-- (void)setTintStyle:(WSActionButtonStyle)style
+- (WSActionButtonText)textStyle
 {
-    _style = style;
-    switch(style)
-    {
-        case WSActionButtonStyleDefault:
-            [self setTintColour:[UIColor colourWithInt:0xCCCCCC]];
-            return;
-            
-        case WSActionButtonStyleWarning:
-            return [self setTintColour:[UIColor colourWithInt:0xFAA732]];
-            
-        case WSActionButtonStyleDanger:
-            return [self setTintColour:[UIColor colourWithInt:0xBD362F]];
-            
-        case WSActionButtonStyleSuccess:
-            return [self setTintColour:[UIColor colourWithInt:0x51A351]];
-            
-        case WSActionButtonStyleInfo:
-            return [self setTintColour:[UIColor colourWithInt:0x2F96B4]];
-            
-        case WSActionButtonStylePrimary:
-            return [self setTintColour:[UIColor colourWithInt:0x0074CC]];
-            
-    }
+    return _textStyle;
 }
 
 - (void)setTintColour:(UIColor*)colour
@@ -215,56 +248,56 @@
     return self.tintColourActual;
 }
 
-- (void)updateBackgroundWithGradientTint:(UIColor*)tint
+- (void)updateLabelShadow:(UILabel*)label
 {
-    CAGradientLayer *gradient = (CAGradientLayer*)[self layer];
-    //    gradient.frame = CGRectMake(0,0,320,44);
-    gradient.colors = [NSArray arrayWithObjects:
-                       (id)[[tint colourByAdjustingHue:0 saturation:0 brightness:0.1 alpha:0] CGColor], 
-                       (id)[[tint colourByAdjustingHue:0 saturation:0 brightness:-0.1 alpha:0] CGColor], 
-                       nil];
+    BOOL invertedLight = self.isSelected||self.isHighlighted;
+    switch(_textStyle)
+    {
+        case WSActionButtonTextDark:
+            label.textColor = LABEL_DARK_COLOUR;
+            label.shadowColor = [UIColor colorWithWhite:1. alpha:0.4];
+            label.shadowOffset = CGSizeMake(0,invertedLight ? -1 : 1);
+            break;
+        default:
+            label.textColor = LABEL_BRIGHT_COLOUR;
+            label.shadowColor = [UIColor colorWithWhite:0. alpha:0.4];
+            label.shadowOffset = CGSizeMake(0,invertedLight ? 1 : -1);
+            break;
+    }
 }
 
-- (void)updateBackgroundWithFlatTint:(UIColor*)tint
+- (void)updateBackgroundWithGradientTint:(UIColor*)tint from:(CGFloat)from to:(CGFloat)to
 {
     CAGradientLayer *gradient = (CAGradientLayer*)[self layer];
     //    gradient.frame = CGRectMake(0,0,320,44);
     gradient.colors = [NSArray arrayWithObjects:
-                       (id)[[tint colourByAdjustingHue:0 saturation:0 brightness:0.1 alpha:0] CGColor], 
-                       (id)[[tint colourByAdjustingHue:0 saturation:0 brightness:-0.1 alpha:0] CGColor], 
+                       (id)[[tint colourByAdjustingHue:0 saturation:0 brightness:from alpha:0] CGColor],
+                       (id)[[tint colourByAdjustingHue:0 saturation:0 brightness:to alpha:0] CGColor],
                        nil];
 }
 
 - (void)updateTintColour
 {
-    switch(_style)
-    {
-        case WSActionButtonStyleDefault:
-            self.titleLabel.textColor = LABEL_DARK_COLOUR;
-            self.titleLabel.shadowColor = [UIColor clearColor];
-            break;
-        default:
-            self.titleLabel.textColor = LABEL_BRIGHT_COLOUR;
-            self.titleLabel.shadowColor = [UIColor colorWithWhite:0. alpha:0.3];
-            break;
-    }
+    [self updateLabelShadow:self.titleLabel];
     
-            
     if(self.isHighlighted)
     {
-        [self updateBackgroundWithGradientTint:[self.tintColourActual colourByAdjustingHue:0 saturation:-0.1 brightness:-0.1 alpha:0]];
+        [self updateBackgroundWithGradientTint:[self.tintColourActual colourByAdjustingHue:0 saturation:0 brightness:-0.1 alpha:0]
+                                          from:-0.1 to:0.1];
     }
     else if(self.isSelected)
     {
-        [self updateBackgroundWithGradientTint:[self.tintColourActual colourByAdjustingHue:0 saturation:0.2 brightness:0.3 alpha:0]];
+        [self updateBackgroundWithGradientTint:[self.tintColourActual colourByAdjustingHue:0 saturation:0.1 brightness:0 alpha:0]
+                                            from:-0.1 to:0.1];
     }
     else if(!self.isEnabled)
     {
-        [self updateBackgroundWithFlatTint:[self.tintColourActual colourByAdjustingHue:0 saturation:-0.4 brightness:0.1 alpha:0]];
+        [self updateBackgroundWithGradientTint:[self.tintColourActual colourByAdjustingHue:0 saturation:-0.4 brightness:0.1 alpha:0]
+                                            from:0.03 to:-0.03];
         self.titleLabel.shadowColor = [UIColor clearColor];
     }
     else {
-        [self updateBackgroundWithGradientTint:self.tintColourActual];
+        [self updateBackgroundWithGradientTint:self.tintColourActual from:0.1 to:-0.1];
     }
     
     [self setNeedsDisplay];
@@ -287,16 +320,6 @@
     [super setHighlighted:highlighted];
     [self updateTintColour];
 }
-
-//- (void)handleTouchDown
-//{
-//    [self updateBackgroundWithGradientTint:[self.tintColourActual colourByAdjustingHue:0 saturation:-0.1 brightness:-0.1 alpha:0]];
-//}
-//
-//- (void)handleTouchUp
-//{
-//    [self updateTintColour];
-//}
 
 + (Class)layerClass {
     return [CAGradientLayer class];
