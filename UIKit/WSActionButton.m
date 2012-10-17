@@ -16,6 +16,7 @@
     WSActionButtonText _textStyle;
 }
 @property (nonatomic, strong) UIColor *tintColourActual;
+@property (nonatomic, strong) UIColor *selectedColourActual;
 @end
 
 @implementation WSActionButton
@@ -31,7 +32,7 @@
             return [UIColor colourWithInt:0xFAA732];
             
         case WSActionButtonStyleDanger:
-            return [UIColor colourWithInt:0xBD362F];
+            return [UIColor redColor];
             
         case WSActionButtonStyleSuccess:
             return [UIColor colourWithInt:0x51A351];
@@ -134,7 +135,7 @@
     self.contentInsets = UIEdgeInsetsMake(0, 20, 0, 20);
     self.userInteractionEnabled = YES;
     self.accessibilityTraits = UIAccessibilityTraitButton;
-    self.layer.borderColor = [UIColor colorWithWhite:0. alpha:0.2].CGColor;
+    self.layer.borderColor = [UIColor colorWithWhite:0. alpha:0.5].CGColor;
     self.layer.borderWidth = 1.;
     self.layer.cornerRadius = 4.;
     self.layer.masksToBounds = YES;
@@ -250,18 +251,18 @@
 
 - (void)updateLabelShadow:(UILabel*)label
 {
-    BOOL invertedLight = self.isSelected||self.isHighlighted;
+//    BOOL invertedLight = self.isSelected||self.isHighlighted;
     switch(_textStyle)
     {
         case WSActionButtonTextDark:
             label.textColor = LABEL_DARK_COLOUR;
             label.shadowColor = [UIColor colorWithWhite:1. alpha:0.4];
-            label.shadowOffset = CGSizeMake(0,invertedLight ? -1 : 1);
+            label.shadowOffset = CGSizeMake(0,1);
             break;
         default:
             label.textColor = LABEL_BRIGHT_COLOUR;
             label.shadowColor = [UIColor colorWithWhite:0. alpha:0.4];
-            label.shadowOffset = CGSizeMake(0,invertedLight ? 1 : -1);
+            label.shadowOffset = CGSizeMake(0, -1);
             break;
     }
 }
@@ -287,8 +288,8 @@
     }
     else if(self.isSelected)
     {
-        [self updateBackgroundWithGradientTint:[self.tintColourActual colourByAdjustingHue:0 saturation:0.1 brightness:0 alpha:0]
-                                            from:-0.1 to:0.1];
+        [self updateBackgroundWithGradientTint:self.selectedColour
+                                            from:-0.3 to:-0.2];
     }
     else if(!self.isEnabled)
     {
@@ -297,7 +298,7 @@
         self.titleLabel.shadowColor = [UIColor clearColor];
     }
     else {
-        [self updateBackgroundWithGradientTint:self.tintColourActual from:0.1 to:-0.1];
+        [self updateBackgroundWithGradientTint:self.tintColourActual from:0 to:-0.2];
     }
     
     [self setNeedsDisplay];
@@ -313,6 +314,20 @@
 {
     [super setSelected:selected];
     [self updateTintColour];
+}
+
+- (void)setSelectedColour:(UIColor*)colour
+{
+    self.selectedColourActual = colour;
+    [self updateTintColour];
+}
+
+- (UIColor *)selectedColour
+{
+    if(self.selectedColourActual)
+        return self.selectedColourActual;
+    else
+        return [self.tintColourActual colourByAdjustingHue:0 saturation:0.1 brightness:0 alpha:0];
 }
 
 - (void)setHighlighted:(BOOL)highlighted
@@ -361,7 +376,7 @@
                                 titleFrame.size.height);
         
         self.leftAccessoryView.frame = CGRectMake(self.contentInsets.left,
-                                                  self.contentInsets.top,
+                                                  (self.frame.size.height-self.leftAccessoryView.frame.size.height)/2,
                                                   self.leftAccessoryView.frame.size.width,
                                                   self.leftAccessoryView.frame.size.height);
     }
@@ -375,7 +390,7 @@
                                 titleFrame.size.height);
         
         self.rightAccessoryView.frame = CGRectMake(self.bounds.size.width-self.contentInsets.right-self.rightAccessoryView.frame.size.width,
-                                                  self.contentInsets.top,
+                                                  (self.frame.size.height-self.rightAccessoryView.frame.size.height)/2,
                                                   self.rightAccessoryView.frame.size.width,
                                                   self.rightAccessoryView.frame.size.height);
     }
