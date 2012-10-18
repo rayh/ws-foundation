@@ -11,12 +11,50 @@
 #define LABEL_BRIGHT_COLOUR [UIColor colorWithWhite:1. alpha:0.90]
 #define LABEL_DARK_COLOUR [UIColor colorWithWhite:0. alpha:0.6]
 
+
+@interface WSActionButtonBackgroundView : UIView
+@end
+
 @interface WSActionButton ()
 {
     WSActionButtonText _textStyle;
 }
+@property (nonatomic, strong) WSActionButtonBackgroundView *backgroundView;
 @property (nonatomic, strong) UIColor *tintColourActual;
 @property (nonatomic, strong) UIColor *selectedColourActual;
+@end
+
+@implementation WSActionButtonBackgroundView
+
+- (id)initWithFrame:(CGRect)frame
+{
+    if(self = [super initWithFrame:frame])
+    {
+        self.userInteractionEnabled = NO;
+        self.layer.borderColor = [UIColor colorWithWhite:0. alpha:0.5].CGColor;
+        self.layer.borderWidth = 1.;
+        self.layer.cornerRadius = 4.;
+        self.layer.masksToBounds = YES;
+        self.layer.rasterizationScale = 2.;
+        self.layer.shouldRasterize = YES;
+
+    }
+    return self;
+}
+
++ (Class)layerClass {
+    return [CAGradientLayer class];
+}
+
+- (void)updateBackgroundWithGradientTint:(UIColor*)tint from:(CGFloat)from to:(CGFloat)to
+{
+    CAGradientLayer *gradient = (CAGradientLayer*)[self layer];
+    //    gradient.frame = CGRectMake(0,0,320,44);
+    gradient.colors = [NSArray arrayWithObjects:
+                       (id)[[tint colourByAdjustingHue:0 saturation:0 brightness:from alpha:0] CGColor],
+                       (id)[[tint colourByAdjustingHue:0 saturation:0 brightness:to alpha:0] CGColor],
+                       nil];
+}
 @end
 
 @implementation WSActionButton
@@ -135,12 +173,9 @@
     self.contentInsets = UIEdgeInsetsMake(0, 20, 0, 20);
     self.userInteractionEnabled = YES;
     self.accessibilityTraits = UIAccessibilityTraitButton;
-    self.layer.borderColor = [UIColor colorWithWhite:0. alpha:0.5].CGColor;
-    self.layer.borderWidth = 1.;
-    self.layer.cornerRadius = 4.;
-    self.layer.masksToBounds = YES;
-    self.layer.rasterizationScale = 2.;
-    self.layer.shouldRasterize = YES;
+    
+    self.backgroundView = [[WSActionButtonBackgroundView alloc] initWithFrame:self.bounds];
+    [self addSubview:self.backgroundView];
         
     self.titleLabel = [self createButtonLabel:self.bounds];
     [self addSubview:self.titleLabel];
@@ -267,38 +302,35 @@
     }
 }
 
-- (void)updateBackgroundWithGradientTint:(UIColor*)tint from:(CGFloat)from to:(CGFloat)to
-{
-    CAGradientLayer *gradient = (CAGradientLayer*)[self layer];
-    //    gradient.frame = CGRectMake(0,0,320,44);
-    gradient.colors = [NSArray arrayWithObjects:
-                       (id)[[tint colourByAdjustingHue:0 saturation:0 brightness:from alpha:0] CGColor],
-                       (id)[[tint colourByAdjustingHue:0 saturation:0 brightness:to alpha:0] CGColor],
-                       nil];
-}
-
 - (void)updateTintColour
 {
+    self.backgroundView.layer.borderColor = [UIColor colorWithWhite:0. alpha:0.5].CGColor;
+    self.layer.shadowOpacity = 0;
     [self updateLabelShadow:self.titleLabel];
     
     if(self.isHighlighted)
     {
-        [self updateBackgroundWithGradientTint:[self.tintColourActual colourByAdjustingHue:0 saturation:0 brightness:-0.1 alpha:0]
+        [self.backgroundView updateBackgroundWithGradientTint:[self.tintColourActual colourByAdjustingHue:0 saturation:0 brightness:-0.1 alpha:0]
                                           from:-0.1 to:0.1];
     }
     else if(self.isSelected)
     {
-        [self updateBackgroundWithGradientTint:self.selectedColour
-                                            from:-0.3 to:-0.2];
+        self.backgroundView.layer.borderColor = self.selectedColour.CGColor;
+        self.layer.shadowRadius = 10;
+        self.layer.shadowColor = self.selectedColour.CGColor;
+        self.layer.shadowOpacity = 1;
+        self.layer.shadowOffset = CGSizeMake(0,0);
+        [self.backgroundView updateBackgroundWithGradientTint:self.selectedColour
+                                          from:0.3 to:0];
     }
     else if(!self.isEnabled)
     {
-        [self updateBackgroundWithGradientTint:[self.tintColourActual colourByAdjustingHue:0 saturation:-0.4 brightness:0.1 alpha:0]
+        [self.backgroundView updateBackgroundWithGradientTint:[self.tintColourActual colourByAdjustingHue:0 saturation:-0.4 brightness:0.1 alpha:0]
                                             from:0.03 to:-0.03];
         self.titleLabel.shadowColor = [UIColor clearColor];
     }
     else {
-        [self updateBackgroundWithGradientTint:self.tintColourActual from:0 to:-0.2];
+        [self.backgroundView updateBackgroundWithGradientTint:self.tintColourActual from:0 to:-0.2];
     }
     
     [self setNeedsDisplay];
@@ -327,17 +359,13 @@
     if(self.selectedColourActual)
         return self.selectedColourActual;
     else
-        return [self.tintColourActual colourByAdjustingHue:0 saturation:0.1 brightness:0 alpha:0];
+        return self.tintColourActual;
 }
 
 - (void)setHighlighted:(BOOL)highlighted
 {
     [super setHighlighted:highlighted];
     [self updateTintColour];
-}
-
-+ (Class)layerClass {
-    return [CAGradientLayer class];
 }
 
 #pragma mark - layout
@@ -362,9 +390,9 @@
 - (void)layoutSubviews
 {
     [super layoutSubviews];
-//    self.layoutView.frame = UIEdgeInsetsInsetRect(self.bounds, self.contentInsets);
     
-//    [self.superview setNeedsLayout];
+    self.backgroundView.frame = self.bounds;
+
     CGRect titleFrame = UIEdgeInsetsInsetRect(self.bounds, self.contentInsets);
     
     if(self.leftAccessoryView)
@@ -397,16 +425,6 @@
     
     self.titleLabel.frame = titleFrame;
 }
-
-//- (void)updateTitleLabelAndResizeFrame:(NSString*)title
-//{
-//    [self.titleLabel setTextAndAdjustWidth:title];
-//    self.frame = CGRectMake(self.frame.origin.x,
-//                            self.frame.origin.y,
-//                            self.layoutView.sizeOfContents.width + self.contentInsets.left + self.contentInsets.right,
-//                            self.frame.size.height);
-//    [self setNeedsLayout];
-//}
 
 - (void)setTitle:(NSString*)title
 {
