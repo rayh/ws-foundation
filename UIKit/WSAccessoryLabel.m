@@ -38,7 +38,6 @@
         self.isAccessibilityElement = YES;
         self.layer.cornerRadius = 3;
         self.layer.borderWidth = 1;
-        self.layer.borderColor = [UIColor colorWithWhite:0 alpha:0.4].CGColor;
         
         
         self.badgeLabel = [[UILabel alloc] initWithFrame:frame];
@@ -47,9 +46,6 @@
         //        self.badgeLabel.layer.borderColor = [UIColor whiteColor].CGColor;
         //        self.badgeLabel.layer.borderWidth = 2;
         self.badgeLabel.textAlignment = UITextAlignmentCenter;
-        self.badgeLabel.shadowColor = [UIColor colorWithWhite:0 alpha:0.4];
-        self.badgeLabel.shadowOffset = CGSizeMake(0, -1);
-        self.badgeLabel.textColor = [UIColor whiteColor];
         self.badgeLabel.font = [UIFont fontWithName:@"HelveticaNeue-Bold" size:10];
         [self addSubview:self.badgeLabel];
     }
@@ -68,8 +64,25 @@
     //    self.layer.borderColor = colour.CGColor;
     CAGradientLayer *gradientLayer = (CAGradientLayer*)[self layer];
     gradientLayer.colors = @[
-    (id)[colour colourByAdjustingHue:0 saturation:0 brightness:0.2 alpha:0].CGColor,
-    (id)[colour colourByAdjustingHue:0 saturation:0 brightness:-0.1 alpha:0].CGColor];
+    (id)[colour colourByAdjustingHue:0 saturation:0 brightness:0 alpha:0].CGColor,
+    (id)[colour colourByAdjustingHue:0 saturation:0 brightness:0.1 alpha:0].CGColor];
+    
+    
+    self.layer.borderColor = [colour colourByAdjustingHue:0 saturation:0 brightness:-0.5 alpha:-0.5].CGColor;
+    
+    if(colour.contrast>=0.5)
+    {
+        self.badgeLabel.shadowColor = [UIColor colorWithWhite:1 alpha:0.4];
+        self.badgeLabel.shadowOffset = CGSizeMake(0, 1);
+        self.badgeLabel.textColor = [UIColor blackColor];
+    }
+    else
+    {
+        self.badgeLabel.shadowColor = [UIColor colorWithWhite:0 alpha:0.4];
+        self.badgeLabel.shadowOffset = CGSizeMake(0, -1);
+        self.badgeLabel.textColor = [UIColor whiteColor];
+    }
+    
     //    [self setNeedsDisplay];
 }
 
