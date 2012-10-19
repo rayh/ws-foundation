@@ -46,14 +46,22 @@
     return [CAGradientLayer class];
 }
 
+- (CAGradientLayer*)gradientLayer
+{
+    return (CAGradientLayer*)[self layer];
+}
+
 - (void)updateBackgroundWithGradientTint:(UIColor*)tint from:(CGFloat)from to:(CGFloat)to
 {
-    CAGradientLayer *gradient = (CAGradientLayer*)[self layer];
     //    gradient.frame = CGRectMake(0,0,320,44);
-    gradient.colors = [NSArray arrayWithObjects:
+    [self gradientLayer].colors = [NSArray arrayWithObjects:
                        (id)[[tint colourByAdjustingHue:0 saturation:0 brightness:from alpha:0] CGColor],
                        (id)[[tint colourByAdjustingHue:0 saturation:0 brightness:to alpha:0] CGColor],
                        nil];
+}
+- (UIColor*)backgroundColor
+{
+    return [UIColor colorWithCGColor:(CGColorRef)[self gradientLayer].colors[0]];
 }
 @end
 
@@ -287,18 +295,15 @@
 - (void)updateLabelShadow:(UILabel*)label
 {
 //    BOOL invertedLight = self.isSelected||self.isHighlighted;
-    switch(_textStyle)
+    if(self.backgroundView.backgroundColor.contrast>=0.5)
     {
-        case WSActionButtonTextDark:
-            label.textColor = LABEL_DARK_COLOUR;
-            label.shadowColor = [UIColor colorWithWhite:1. alpha:0.4];
-            label.shadowOffset = CGSizeMake(0,1);
-            break;
-        default:
-            label.textColor = LABEL_BRIGHT_COLOUR;
-            label.shadowColor = [UIColor colorWithWhite:0. alpha:0.4];
-            label.shadowOffset = CGSizeMake(0, -1);
-            break;
+        label.textColor = LABEL_DARK_COLOUR;
+        label.shadowColor = [UIColor colorWithWhite:1. alpha:0.4];
+        label.shadowOffset = CGSizeMake(0,1);
+    } else {
+        label.textColor = LABEL_BRIGHT_COLOUR;
+        label.shadowColor = [UIColor colorWithWhite:0. alpha:0.4];
+        label.shadowOffset = CGSizeMake(0, -1);
     }
 }
 
@@ -306,7 +311,6 @@
 {
     self.backgroundView.layer.borderColor = [UIColor colorWithWhite:0. alpha:0.5].CGColor;
     self.layer.shadowOpacity = 0;
-    [self updateLabelShadow:self.titleLabel];
     
     if(self.isHighlighted)
     {
@@ -315,8 +319,8 @@
     }
     else if(self.isSelected)
     {
-        self.backgroundView.layer.borderColor = self.selectedColour.CGColor;
-        self.layer.shadowRadius = 10;
+        self.backgroundView.layer.borderColor = [self.selectedColour colourByAdjustingHue:0 saturation:0 brightness:-0.3 alpha:0].CGColor;
+        self.layer.shadowRadius = 5;
         self.layer.shadowColor = self.selectedColour.CGColor;
         self.layer.shadowOpacity = 1;
         self.layer.shadowOffset = CGSizeMake(0,0);
@@ -333,6 +337,7 @@
         [self.backgroundView updateBackgroundWithGradientTint:self.tintColourActual from:0 to:-0.2];
     }
     
+    [self updateLabelShadow:self.titleLabel];
     [self setNeedsDisplay];
 }
 
@@ -377,10 +382,10 @@
     
     CGSize labelSize = [self.titleLabel.text sizeWithFont:self.titleLabel.font constrainedToSize:CGSizeMake(INT32_MAX, innerSize.height)];
     
-    if(self.leftAccessoryView)
+    if(self.leftAccessoryView && !self.leftAccessoryView.hidden)
         labelSize.width+=self.leftAccessoryView.frame.size.width+INNER_PADDING;
     
-    if(self.rightAccessoryView)
+    if(self.rightAccessoryView && !self.rightAccessoryView.hidden)
         labelSize.width+=self.rightAccessoryView.frame.size.width+INNER_PADDING;
     
     return CGSizeMake(self.contentInsets.left + labelSize.width + self.contentInsets.right,
@@ -395,7 +400,7 @@
 
     CGRect titleFrame = UIEdgeInsetsInsetRect(self.bounds, self.contentInsets);
     
-    if(self.leftAccessoryView)
+    if(self.leftAccessoryView && !self.leftAccessoryView.hidden)
     {
         // adjust title frame to be left offset
         titleFrame = CGRectMake(titleFrame.origin.x+self.leftAccessoryView.frame.size.width+INNER_PADDING,
@@ -409,7 +414,7 @@
                                                   self.leftAccessoryView.frame.size.height);
     }
     
-    if(self.rightAccessoryView)
+    if(self.rightAccessoryView && !self.rightAccessoryView.hidden)
     {
         // adjust title frame to be left offset
         titleFrame = CGRectMake(titleFrame.origin.x,
