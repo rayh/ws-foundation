@@ -2,21 +2,27 @@
 #import "WSLayoutView.h"
 #import <QuartzCore/QuartzCore.h>
 
-@interface UIProxyView ()
+@interface WSProxyView ()
 - (id)initWithInnerView:(UIView*)view;
 @end
 
-@interface UIInsetView : UIProxyView
+@interface WSCenteredView : WSProxyView
+@end
+
+@interface WSInsetView : WSProxyView
 @property (nonatomic, assign) UIEdgeInsets insets;
 - (id)initWithInnerView:(UIView*)view insets:(UIEdgeInsets)insets;
 @end
 
-@interface APForceVerticalView : UIProxyView
-@property (nonatomic) CGFloat verticalHeight;
-- (id)initWithInnerView:(UIView*)view height:(CGFloat)height;
+@interface WSLayoutExplicitSizeView : WSProxyView
+@property (nonatomic) CGSize size;
+- (id)initWithInnerView:(UIView*)view size:(CGSize)size;
 @end
 
-@implementation UIView (Layout)
+@interface WSPinnedToBoundsView : UIView
+@end
+
+@implementation UIView (WSLayout)
 
 + (UIView*)layoutViewWithAlignment:(WSLayoutViewAlignment)alignment configure:(UIViewLayoutConfigureBlock)configure
 {
@@ -34,6 +40,14 @@
 + (UIView*)verticalLayoutView:(UIViewLayoutConfigureBlock)configure
 {
   return [self layoutViewWithAlignment:WSLayoutViewAlignmentVertical configure:configure];
+}
+
++ (UIView*)pinnedToBoundsLayoutView:(UIViewLayoutConfigureBlock)configure
+{
+    WSPinnedToBoundsView *view = [[WSPinnedToBoundsView alloc] initWithFrame:CGRectZero];
+    if(configure)
+        configure(view);
+    return view;
 }
 
 - (void)addHorizontallyAlignedView:(UIViewLayoutConfigureBlock)configure
@@ -60,9 +74,25 @@
   [self addSubview:[WSLayoutView fixedSpaceWithSize:size]];
 }
 
+
+#pragma mark - single-view methods
+
+- (UIView*)withContainerView:(UIViewLayoutConfigureBlock)configure
+{
+    WSProxyView *view = [[WSProxyView alloc] initWithInnerView:self];
+    if(configure)
+        configure(view);
+    return view;
+}
+
+- (UIView*)withCenteringView
+{
+    return [[WSCenteredView alloc] initWithInnerView:self];
+}
+
 - (UIView*)withEdgeInsets:(UIEdgeInsets)insets
 {
-  return [[UIInsetView alloc] initWithInnerView:self insets:insets];
+  return [[WSInsetView alloc] initWithInnerView:self insets:insets];
 }
 
 - (UIView*)withPadding:(CGFloat)padding
@@ -70,15 +100,8 @@
   return [self withEdgeInsets:UIEdgeInsetsMake(padding, padding, padding, padding)];
 }
 
-- (UIView*)withCornerRadius:(CGFloat)radius
-{
-  self.layer.cornerRadius = radius;
-  self.clipsToBounds = YES;
-  return [[UIProxyView alloc] initWithInnerView:self];
-}
-
-- (UIView*)withFixedHeight:(CGFloat)height {
-  APForceVerticalView *verticalView = [[APForceVerticalView alloc] initWithInnerView:self height:height];
+- (UIView*)withFixedSize:(CGSize)size {
+  WSLayoutExplicitSizeView *verticalView = [[WSLayoutExplicitSizeView alloc] initWithInnerView:self size:size];
   return verticalView;
 }
 
@@ -107,7 +130,9 @@
 }
 @end
 
-@implementation UIProxyView
+#pragma mark - Private view implementations
+
+@implementation WSProxyView
 - (id)initWithInnerView:(UIView*)view
 {
   if(self = [super initWithFrame:view.frame])
@@ -143,8 +168,14 @@
 }
 @end
 
+@implementation WSCenteredView
+- (void)layoutSubviews
+{
+    self.innerView.center = self.center;
+}
+@end
 
-@implementation UIInsetView
+@implementation WSInsetView
 - (id)initWithInnerView:(UIView*)view insets:(UIEdgeInsets)insets
 {
   if(self = [super initWithInnerView:view])
@@ -165,24 +196,45 @@
 @end
 
 
-@implementation APForceVerticalView
+@implementation WSLayoutExplicitSizeView
 
-- (id)initWithInnerView:(UIView*)view height:(CGFloat)height {
-  
+- (id)initWithInnerView:(UIView *)view size:(CGSize)size
+{
   if(self = [super initWithInnerView:view]) {
-    self.verticalHeight = height;
+    self.size = size;
     self.autoresizingMask = UIViewAutoresizingFlexibleWidth;
   }
   return self;
 }
 
 - (CGSize) sizeThatFits:(CGSize)size {
-  return CGSizeMake(44., self.verticalHeight);
+  return size;
 }
 
-- (void)layoutSubviews {
-  [super layoutSubviews];
-  self.innerView.frame = self.bounds;
+@end
+
+@implementation WSPinnedToBoundsView
+
+- (CGSize)sizeThatFits:(CGSize)size
+{
+    CGSize maxSize = CGSizeZero;
+    for(UIView *subview in self.subviews)
+    {
+        CGSize subviewSize = [subview sizeThatFits:size];
+        if(subviewSize.width>maxSize.width)
+            maxSize = CGSizeMake(subviewSize.width, maxSize.height);
+        if(subviewSize.height>maxSize.height)
+            maxSize = CGSizeMake(maxSize.width, subviewSize.height);
+    }
+    
+    return maxSize;
+}
+
+- (void)layoutSubviews
+{
+    [super layoutSubviews];
+    for(UIView *view in self.subviews)
+        view.frame = self.bounds;
 }
 
 @end

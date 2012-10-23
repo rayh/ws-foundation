@@ -2,23 +2,31 @@
 
 typedef void (^UIViewLayoutConfigureBlock)(UIView *layoutView);
 
-@interface UIProxyView : UIView
+@interface WSProxyView : UIView
 @property (nonatomic, readwrite) UIView *innerView;
 @end
 
-@interface UIView (Layout)
+@interface UIView (WSLayout)
+
+// Create view in which all subviews are stacked verticalled from the top to bottom
 + (UIView*)horizontalLayoutView:(UIViewLayoutConfigureBlock)configure;
+
+// Create view in which all subviews are stackd horizontally from left to right
 + (UIView*)verticalLayoutView:(UIViewLayoutConfigureBlock)configure;
-- (void)addHorizontallyAlignedView:(UIViewLayoutConfigureBlock)configure;
-- (void)addVerticallyAlignedView:(UIViewLayoutConfigureBlock)configure;
+
+// Create view in which all subviews inherit the view's bounds
++ (UIView*)pinnedToBoundsLayoutView:(UIViewLayoutConfigureBlock)configure;
+
+// Utility methods for spacing layouts
 - (void)addFlexibleSpace;
 - (void)addFixedSpaceWithSize:(CGFloat)size;
 
 
 - (UIView*)withEdgeInsets:(UIEdgeInsets)insets;
 - (UIView*)withPadding:(CGFloat)padding;
-- (UIView*)withCornerRadius:(CGFloat)radius;
-- (UIView*)withFixedHeight:(CGFloat)height; 
+- (UIView*)withContainerView:(UIViewLayoutConfigureBlock)configure;
+- (UIView*)withCenteringView;
+- (UIView*)withFixedSize:(CGSize)size;
 
 // Inform superviews that this view changed it's size
 - (void)notifyViewDidChangeSize;
