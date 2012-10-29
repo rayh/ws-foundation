@@ -133,11 +133,6 @@
 @end
 
 @implementation WSMediaView
-@synthesize delegate=_delegate;
-@synthesize originalUrl=_originalUrl;
-@synthesize webView=_webView;
-@synthesize imageView=_imageView;
-@synthesize contentType=_contentType;
 
 - (id)initWithFrame:(CGRect)frame
 {
