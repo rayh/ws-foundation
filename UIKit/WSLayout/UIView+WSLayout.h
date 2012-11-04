@@ -42,6 +42,10 @@ typedef CGSize (^UIViewSizeCalculationBlock)(UIView *viewToSize, CGSize sizeToFi
 // Override sizeThatFits and provide a fixed size for this view
 - (UIView*)withFixedSize:(CGSize)size;
 
+// Clip the inner view and then return a wrapping view such views outside of the bounds
+// can be added
+- (UIView*)withClipping;
+
 // Override sizeThatFits and provide a block to calculate the view's size
 //- (UIView*)withSizeCalculation:(UIViewSizeCalculationBlock)sizingBlock;
 

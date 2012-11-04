@@ -108,6 +108,13 @@
     return scrollView;
 }
 
+- (UIView *)withClipping
+{
+    return [[self apply:^(UIView *view) {
+        self.layer.masksToBounds = YES;
+    }] withContainerView:nil];
+}
+
 - (void)notifyViewDidChangeSize
 {
   [self setNeedsLayout];
