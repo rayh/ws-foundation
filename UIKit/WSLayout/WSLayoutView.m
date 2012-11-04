@@ -1,11 +1,5 @@
 #import "WSLayoutView.h"
 
-@interface UIFlexibleSpaceView : UIView
-@end
-
-@implementation UIFlexibleSpaceView
-@end
-
 @interface WSLayoutView () {
     CGSize _sizeOfContents;
     BOOL _hasBeenInitialized;
@@ -13,19 +7,6 @@
 @end
 
 @implementation WSLayoutView
-
-
-+ (UIFlexibleSpaceView*)flexibleSpace
-{
-    UIFlexibleSpaceView *view = [[UIFlexibleSpaceView alloc] initWithFrame:CGRectZero];
-    view.autoresizingMask = UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth;
-    return view;
-}
-
-+ (UIView*)fixedSpaceWithSize:(CGFloat)size
-{
-    return [[UIView alloc] initWithFrame:CGRectMake(0, 0, size, size)];
-}
 
 
 + (WSLayoutView*)layoutInFrame:(CGRect)rect 
@@ -214,14 +195,4 @@
   return _sizeOfContents;
 }
 
-
-- (void)addFlexibleSpace
-{
-    [self addSubview:[WSLayoutView flexibleSpace]];
-}
-
-- (void)addFixedSpaceWithSize:(CGFloat)size
-{
-    [self addSubview:[WSLayoutView fixedSpaceWithSize:size]];
-}
 @end

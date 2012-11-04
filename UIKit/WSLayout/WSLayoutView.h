@@ -10,9 +10,6 @@ typedef enum {
 @property (nonatomic) CGFloat animationDuration;
 @property (nonatomic, readonly) CGSize sizeOfContents;
 
-+ (UIView*)flexibleSpace;
-+ (UIView*)fixedSpaceWithSize:(CGFloat)size;
-
 + (WSLayoutView*)layoutInFrame:(CGRect)rect
                          views:(NSArray*)views
                      alignment:(WSLayoutViewAlignment)alignment;
@@ -22,7 +19,4 @@ typedef enum {
                      alignment:(WSLayoutViewAlignment)alignment
                       duration:(CGFloat)animationDuration;
 
-
-- (void)addFlexibleSpace;
-- (void)addFixedSpaceWithSize:(CGFloat)size;
 @end
