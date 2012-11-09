@@ -66,12 +66,9 @@
 
 @implementation UIView (WSWrappedView)
 
-- (UIView*)withContainerView:(void(^)(UIView *))configure
+- (UIView*)withContainer
 {
-    WSProxyView *view = [[WSProxyView alloc] initWithInnerView:self];
-    if(configure)
-        configure(view);
-    return view;
+    return [[WSProxyView alloc] initWithInnerView:self];
 }
 
 - (UIView *)apply:(void (^)(UIView *))configure
@@ -82,7 +79,7 @@
     return self;
 }
 
-- (UIView*)withCentering
+- (UIView*)withCentreing
 {
     return [[WSCentredView alloc] initWithInnerView:self];
 }
@@ -98,21 +95,19 @@
 }
 
 - (UIView*)withFixedSize:(CGSize)size {
-  return [[WSFixedSizeView alloc] initWithInnerView:self size:size];
+  return [WSFixedSizeView sizedView:self withFixedSize:size];
 }
+
+- (UIView*)withCalculatedSize:(WSCalculateSizeThatFitsBlock)sizeBlock {
+    return [WSFixedSizeView sizedView:self withSizeCalculation:sizeBlock];
+}
+
 
 - (UIView *)withScrolling
 {
     WSScrollLayoutView *scrollView = [[WSScrollLayoutView alloc] initWithFrame:CGRectZero];
     [scrollView addSubview:self];
     return scrollView;
-}
-
-- (UIView *)withClipping
-{
-    return [[self apply:^(UIView *view) {
-        self.layer.masksToBounds = YES;
-    }] withContainerView:nil];
 }
 
 - (void)notifyViewDidChangeSize

@@ -26,6 +26,9 @@ typedef CGSize (^UIViewSizeCalculationBlock)(UIView *viewToSize, CGSize sizeToFi
 
 @interface UIView (WSWrappedView)
 
+// Wrap the current view with a containing proxy view that forwards sizeThatFits: and layoutSubviews
+- (UIView*)viewByProxying;
+
 // Inset the current view by the given amount.
 - (UIView*)withEdgeInsets:(UIEdgeInsets)insets;
 
@@ -33,7 +36,7 @@ typedef CGSize (^UIViewSizeCalculationBlock)(UIView *viewToSize, CGSize sizeToFi
 - (UIView*)withPadding:(CGFloat)padding;
 
 // Center the current view in whatever the parent views bounds are
-- (UIView*)withCentering;
+- (UIView*)withCentreing;
 
 // Wrap the current view in a scrollable region that attempts to stretch the content to
 // the scroll view's bounds, unless the content size is larger than those bounds
@@ -41,10 +44,7 @@ typedef CGSize (^UIViewSizeCalculationBlock)(UIView *viewToSize, CGSize sizeToFi
 
 // Override sizeThatFits and provide a fixed size for this view
 - (UIView*)withFixedSize:(CGSize)size;
-
-// Clip the inner view and then return a wrapping view such views outside of the bounds
-// can be added
-- (UIView*)withClipping;
+- (UIView*)withCalculatedSize:(UIViewSizeCalculationBlock)sizeBlock;
 
 // Override sizeThatFits and provide a block to calculate the view's size
 //- (UIView*)withSizeCalculation:(UIViewSizeCalculationBlock)sizingBlock;
