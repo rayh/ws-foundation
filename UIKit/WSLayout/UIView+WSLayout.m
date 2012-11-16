@@ -66,7 +66,7 @@
 
 @implementation UIView (WSWrappedView)
 
-- (UIView*)withContainer
+- (UIView*)viewByProxying
 {
     return [[WSProxyView alloc] initWithInnerView:self];
 }
