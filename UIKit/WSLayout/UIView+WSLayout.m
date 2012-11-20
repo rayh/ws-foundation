@@ -62,7 +62,13 @@
 
 - (void)addFixedSpaceWithSize:(CGFloat)size
 {
-  [self addSubview:[[UIView alloc] initWithFrame:CGRectMake(0, 0, size, size)]];
+    if(![self isKindOfClass:[WSLayoutView class]])
+        return;
+    
+    WSLayoutViewAlignment alignment = [(WSLayoutView*)self alignment];
+    [self addSubview:[[UIView alloc] initWithFrame:CGRectMake(0, 0,
+                                                              alignment==WSLayoutViewAlignmentHorizontal ? size : 0,
+                                                              alignment==WSLayoutViewAlignmentVertical ? size : 0)]];
 }
 
 @end
@@ -116,21 +122,22 @@
 
 - (void)notifyViewDidChangeSize
 {
-  [self setNeedsLayout];
-  [self.superview notifyViewDidChangeSize];
+    [self setNeedsLayout];
+    [self.superview notifyViewDidChangeSize];
 }
 
 - (void)debugLayoutWithDepth:(NSInteger)depth
 {
+    self.layer.borderColor = [UIColor colorWithHue:((float)depth/10.) saturation:0.5 brightness:1. alpha:0.8].CGColor;
+    self.layer.borderWidth = 1.;
+    self.backgroundColor = [UIColor colorWithHue:((float)depth/10.) saturation:0.5 brightness:1. alpha:0.3];
+    
+    NSLog(@"%@ - %@", [@"" stringByPaddingToLength:(NSUInteger)depth withString:@" " startingAtIndex:0], [self debugDescription]);
   
-  self.layer.borderColor = [UIColor colorWithHue:((float)depth/10.) saturation:0.5 brightness:1. alpha:0.8].CGColor;
-  self.layer.borderWidth = 1.;  
-  self.backgroundColor = [UIColor colorWithHue:((float)depth/10.) saturation:0.5 brightness:1. alpha:0.3];
-  
-  for(UIView *view in self.subviews)
-  {
-    [view debugLayoutWithDepth:depth+1];
-  }
+    for(UIView *view in self.subviews)
+    {
+        [view debugLayoutWithDepth:depth+1];
+    }
 }
 @end
 
