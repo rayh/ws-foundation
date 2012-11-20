@@ -107,7 +107,7 @@
 }
 
 
-- (UIView *)withScrolling
+- (UIScrollView *)withScrolling
 {
     WSScrollLayoutView *scrollView = [[WSScrollLayoutView alloc] initWithFrame:CGRectZero];
     [scrollView addSubview:self];

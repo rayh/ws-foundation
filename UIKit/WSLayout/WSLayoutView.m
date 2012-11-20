@@ -29,12 +29,13 @@
 - (void)calculateViewSizeThatFits:(CGSize)size andPerformLayout:(BOOL)performLayout
 {
     // calculate sizes of views
-    NSMutableArray *viewSizes = [NSMutableArray array];
+    CGFloat viewSizes[self.subviews.count];
     CGFloat maxSizeInNonAlignmentDirection = 0;
     CGFloat sizeOfFixedViews = 0;
     CGFloat sizeOfFlexibleViews = 0;
     NSInteger numberOfFlexibleViews = 0;
-    for(UIView *view in self.subviews) {
+    for(int i = 0; i < self.subviews.count; i++) {
+        UIView *view = [self.subviews objectAtIndex:i];
         if(view.hidden || view.alpha == 0)
             continue;
 
@@ -47,14 +48,14 @@
             viewSize = [view sizeThatFits:CGSizeMake(size.width, self.frame.size.height)];
             viewSizeInAlignmentDirection=viewSize.height;
             maxSizeInNonAlignmentDirection = MAX(maxSizeInNonAlignmentDirection, viewSize.width);
-            [viewSizes addObject:[NSNumber numberWithFloat:viewSize.height]];
+            viewSizes[i] = viewSize.height;
         }
         else
         {
             viewSize = [view sizeThatFits:CGSizeMake(self.frame.size.width, size.height)];
             viewSizeInAlignmentDirection=viewSize.width;
             maxSizeInNonAlignmentDirection = MAX(maxSizeInNonAlignmentDirection, viewSize.height);
-            [viewSizes addObject:[NSNumber numberWithFloat:viewSize.width]];
+            viewSizes[i] = viewSize.width;
         }
     
         
@@ -86,7 +87,6 @@
 
     // Calculate size of flexible views
     CGFloat heightOfEachFlexibleView = remainingSize / numberOfFlexibleViews;
-  
     
     // Layout subviews
     CGFloat offset = 0;
@@ -95,12 +95,18 @@
         if(view.hidden || view.alpha == 0)
             continue;
       
-        CGFloat sizeInAlignmentDirection = [self isViewFlexibleInAlignmentDirection:view] ? heightOfEachFlexibleView : [[viewSizes objectAtIndex:i] floatValue];
+        CGFloat sizeInAlignmentDirection = [self isViewFlexibleInAlignmentDirection:view] ? heightOfEachFlexibleView : viewSizes[i];
         
         if(self.alignment==WSLayoutViewAlignmentVertical)
-            view.frame = CGRectMake(0, offset, self.frame.size.width, sizeInAlignmentDirection);
+//            if(view.autoresizingMask&UIViewAutoresizingFlexibleWidth)
+                view.frame = CGRectMake(0, offset, self.frame.size.width, sizeInAlignmentDirection);
+//            else
+//                view.frame = CGRectMake(view.frame.origin.x, offset, view.frame.size.width, sizeInAlignmentDirection);
         else
-            view.frame = CGRectMake(offset, 0, sizeInAlignmentDirection, self.frame.size.height);
+//            if(view.autoresizingMask&UIViewAutoresizingFlexibleHeight)
+                view.frame = CGRectMake(offset, 0, sizeInAlignmentDirection, self.frame.size.height);
+//            else
+//                view.frame = CGRectMake(offset, view.frame.origin.y, sizeInAlignmentDirection, view.frame.size.height);
         
         offset+=sizeInAlignmentDirection;
     }

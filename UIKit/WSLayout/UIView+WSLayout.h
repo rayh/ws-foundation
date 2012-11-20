@@ -40,7 +40,7 @@ typedef CGSize (^UIViewSizeCalculationBlock)(UIView *viewToSize, CGSize sizeToFi
 
 // Wrap the current view in a scrollable region that attempts to stretch the content to
 // the scroll view's bounds, unless the content size is larger than those bounds
-- (UIView*)withScrolling;
+- (UIScrollView*)withScrolling;
 
 // Override sizeThatFits and provide a fixed size for this view
 - (UIView*)withFixedSize:(CGSize)size;
