@@ -20,10 +20,14 @@
 
 + (UIView*)layoutViewWithAlignment:(WSLayoutViewAlignment)alignment configure:(void(^)(UIView *))configure
 {
-  UIView *view = [WSLayoutView layoutInFrame:CGRectZero views:@[] alignment:alignment];
-  if(configure)
-    configure(view);
-  return view;
+    WSLayoutView *layoutView = [[WSLayoutView alloc] initWithFrame:CGRectZero];
+    layoutView.animationDuration = 0;
+    layoutView.alignment = alignment;
+    
+    if(configure)
+        configure(layoutView);
+    
+    return layoutView;
 }
 
 + (UIView*)horizontalLayoutView:(void (^)(UIView *))configure
