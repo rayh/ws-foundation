@@ -11,17 +11,12 @@
 @property (nonatomic, assign) dispatch_semaphore_t semaphore;
 @end
 @implementation WSDispatchSemaphore
-@synthesize semaphore=_semaphore;
 
 + (WSDispatchSemaphore *)semaphoreWithPoolSize:(NSInteger)size
 {
     return [[WSDispatchSemaphore alloc] initWithSize:size];
 }
 
-- (void)dealloc
-{
-    dispatch_release(self.semaphore);
-}
 
 - (id)initWithSize:(NSInteger)size
 {

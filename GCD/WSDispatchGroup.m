@@ -23,12 +23,7 @@
 @end
 
 @implementation WSDispatchGroup
-@synthesize dispatchGroup=dispatchGroup_;
 
-- (void)dealloc
-{
-    dispatch_release(self.dispatchGroup);
-}
 - (id)init
 {
     if(self = [super init]) {

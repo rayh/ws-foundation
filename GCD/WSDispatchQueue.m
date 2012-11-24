@@ -51,10 +51,6 @@
     return [self globalQueue:DISPATCH_QUEUE_PRIORITY_LOW];
 }
 
-- (void)dealloc {
-    dispatch_release(queue_);
-}
-
 - (id)initWithName:(NSString*)queueName {
     return [self initWithQueue:dispatch_queue_create([queueName cStringUsingEncoding:NSStringEncodingConversionAllowLossy], NULL)];
 }
