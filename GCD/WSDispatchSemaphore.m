@@ -8,7 +8,7 @@
 #import "WSDispatchSemaphore.h"
 
 @interface WSDispatchSemaphore ()
-@property (nonatomic, assign) dispatch_semaphore_t semaphore;
+@property (nonatomic, strong) dispatch_semaphore_t semaphore;
 @end
 @implementation WSDispatchSemaphore
 
