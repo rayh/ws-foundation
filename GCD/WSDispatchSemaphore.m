@@ -17,7 +17,6 @@
     return [[WSDispatchSemaphore alloc] initWithSize:size];
 }
 
-
 - (id)initWithSize:(NSInteger)size
 {
     if(self = [super init]) {
