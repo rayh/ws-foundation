@@ -19,7 +19,7 @@
 @end
 
 @interface WSDispatchGroup ()
-@property (nonatomic, strong) dispatch_group_t dispatchGroup;
+@property (nonatomic, assign) dispatch_group_t dispatchGroup;
 @end
 
 @implementation WSDispatchGroup
