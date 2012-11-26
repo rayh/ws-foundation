@@ -26,89 +26,120 @@
         return view.autoresizingMask&UIViewAutoresizingFlexibleWidth;
 }
 
-- (void)calculateViewSizeThatFits:(CGSize)size andPerformLayout:(BOOL)performLayout
+- (CGSize)calculateViewSizeThatFits:(CGSize)size andPerformLayout:(BOOL)performLayout
 {
+    NSMutableDictionary *calculatedFrames = [NSMutableDictionary dictionary];
+    
     // First pass: calculate sizes of FIXED views
-    CGFloat sizeOfFixedViews = 0;
+    CGSize  sizeOfContents = CGSizeZero;
     NSInteger numberOfFlexibleViews = 0;
     for(int i = 0; i < self.subviews.count; i++) {
         UIView *view = [self.subviews objectAtIndex:i];
         if(view.hidden || view.alpha == 0)
             continue;
         
+        // Ignore flexible views, other than to determine their number
         if([self isViewFlexibleInAlignmentDirection:view])
         {
             numberOfFlexibleViews++;
             continue;
         }
         
+        // Calculate the view's optimal size and store for later use
+        CGSize viewSize = [view sizeThatFits:size];
+        
+        // calculate our optimal size for FIXED views
         if(self.alignment==WSLayoutViewAlignmentVertical)
         {
-            sizeOfFixedViews+=[view sizeThatFits:CGSizeMake(size.width, self.frame.size.height)].height;
+            sizeOfContents.width    = MAX(sizeOfContents.width, viewSize.width);
+            sizeOfContents.height   +=viewSize.height;
+            
+            viewSize.width          = size.width;
         }
         else
         {
-            sizeOfFixedViews+=[view sizeThatFits:CGSizeMake(self.frame.size.width, size.height)].width;
+            sizeOfContents.height   = MAX(viewSize.height, sizeOfContents.height);
+            sizeOfContents.width    +=viewSize.width;
+            
+            viewSize.height         = size.height;
         }
+        
+        [calculatedFrames setObject:[NSValue valueWithCGSize:viewSize] forKey:@(i)];
     }
     
-    // Calculate optimum size of view
-    CGFloat remainingSize = 0;
+    // Calculate size of each flexible view
+    CGSize sizeOfEachFlexibleView = CGSizeZero;
     if(self.alignment==WSLayoutViewAlignmentVertical)
     {
-        remainingSize = MAX(0, self.frame.size.height - sizeOfFixedViews);
+        sizeOfEachFlexibleView = CGSizeMake(self.frame.size.width, MAX(0, self.frame.size.height - sizeOfContents.height)/ numberOfFlexibleViews);
     }
     else
     {
-        remainingSize = MAX(0, self.frame.size.width - sizeOfFixedViews);
+        sizeOfEachFlexibleView = CGSizeMake(MAX(0, self.frame.size.width - sizeOfContents.width)/ numberOfFlexibleViews, self.frame.size.height);
     }
     
-    // Calculate size of flexible views
-    CGFloat sizeOfFlexibleViews = 0;
-    CGFloat maxSizeInNonAlignmentDirection = 0;
-    CGFloat sizeOfEachFlexibleView = remainingSize / numberOfFlexibleViews;
-    CGFloat currentLayoutOffset = 0;
+    //    NSMutableArray *debugStrings = [NSMutableArray array];
     
     // Second pass: Calculate non-alignment sizes of FLEXIBLE views
     // Optionally layout the view (modify the subview frames)
+    CGFloat currentLayoutOffset = 0;
     for(int i = 0; i < self.subviews.count; i++) {
         UIView *view = [self.subviews objectAtIndex:i];
         if(view.hidden || view.alpha == 0)
             continue;
         
-        CGFloat sizeInAlignmnetDirection = 0;
+        CGSize viewSize = [[calculatedFrames objectForKey:@(i)] CGSizeValue];
+        CGRect newFrameForView = CGRectMake(0,0,viewSize.width,viewSize.height);
         BOOL isFlexible = [self isViewFlexibleInAlignmentDirection:view];
         
-        if(self.alignment==WSLayoutViewAlignmentVertical)
-        {
-            CGSize viewSize = [view sizeThatFits:CGSizeMake(size.width, isFlexible ? sizeOfEachFlexibleView : self.frame.size.height)];
-            sizeInAlignmnetDirection = isFlexible ? sizeOfEachFlexibleView : viewSize.height;
-            maxSizeInNonAlignmentDirection = MAX(maxSizeInNonAlignmentDirection, viewSize.width);
-            
-            if(performLayout)
-                view.frame = CGRectMake(0, currentLayoutOffset, self.frame.size.width, sizeInAlignmnetDirection);
-        }
-        else
-        {
-            CGSize viewSize = [view sizeThatFits:CGSizeMake(isFlexible ? sizeOfEachFlexibleView : self.frame.size.width, size.height)];
-            sizeInAlignmnetDirection = isFlexible ? sizeOfEachFlexibleView : viewSize.width;
-            maxSizeInNonAlignmentDirection = MAX(maxSizeInNonAlignmentDirection, viewSize.height);
-            
-            if(performLayout)
-                view.frame = CGRectMake(currentLayoutOffset, 0, sizeInAlignmnetDirection, self.frame.size.height);
-        }
-        
-        currentLayoutOffset+=sizeInAlignmnetDirection;        
-        
+        // Flexible view's havent yet been consultate about their optimal size
+        // Now we know their preferred size, ask them now, before layout
         if(isFlexible)
-            sizeOfFlexibleViews+=sizeInAlignmnetDirection;
+        {
+            // Calculate size of flexible views
+            viewSize = [view sizeThatFits:sizeOfEachFlexibleView];
+            newFrameForView.size = sizeOfEachFlexibleView;
+            
+            // Update our optimal size for FLEXIBLE views
+            if(self.alignment==WSLayoutViewAlignmentVertical)
+            {
+                sizeOfContents.width = MAX(sizeOfContents.width, viewSize.width);
+                sizeOfContents.height+=newFrameForView.size.height;
+            }
+            else
+            {
+                sizeOfContents.height = MAX(sizeOfContents.height, viewSize.height);
+                sizeOfContents.width+=newFrameForView.size.width;
+            }
+        }
+        
+        // Optionally set frame on subview's, i.e. update their layout
+        if(performLayout)
+        {
+            // Calculate view's origin
+            if(self.alignment==WSLayoutViewAlignmentVertical)
+            {
+                newFrameForView.origin.y = currentLayoutOffset;
+                currentLayoutOffset+= newFrameForView.size.height;
+            }
+            else
+            {
+                newFrameForView.origin.x = currentLayoutOffset;
+                currentLayoutOffset+= newFrameForView.size.width;
+            }
+            
+            view.frame = newFrameForView;
+        }
+        
+        //        [debugStrings addObject:[NSString stringWithFormat:@"%@(%0.2f)", NSStringFromClass([view class]), sizeInAlignmnetDirection]];
+        
     }
     
-    // Calculate optimum size of view
-    if(self.alignment==WSLayoutViewAlignmentVertical)
-        _sizeOfContents = CGSizeMake(maxSizeInNonAlignmentDirection, sizeOfFixedViews+sizeOfFlexibleViews);
-    else
-        _sizeOfContents = CGSizeMake(sizeOfFixedViews+sizeOfFlexibleViews, maxSizeInNonAlignmentDirection);
+    //    if(debugStrings.count)
+    //        NSLog(@"[WSLayoutView:%@] %@ = %0.2f, %0.2f ", self.alignment==WSLayoutViewAlignmentHorizontal ? @"H" : @"V", [debugStrings componentsJoinedByString:@" + "], sizeOfFlexibleViews+sizeOfFixedViews, maxSizeInNonAlignmentDirection);
+    
+    // Update optimum size of view
+    return sizeOfContents;
 }
 
 - (void)layoutSubviews
@@ -131,7 +162,7 @@
 }
 
 - (CGSize)sizeThatFits:(CGSize)size {
-    [self calculateViewSizeThatFits:self.frame.size andPerformLayout:NO];
+    _sizeOfContents = [self calculateViewSizeThatFits:self.frame.size andPerformLayout:NO];
     return _sizeOfContents;
 }
 

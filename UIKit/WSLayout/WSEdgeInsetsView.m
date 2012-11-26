@@ -23,6 +23,11 @@
 - (CGSize)sizeThatFits:(CGSize)size
 {
     CGSize innerSize = [self.innerView sizeThatFits:CGSizeMake(size.width-self.insets.left-self.insets.right, size.height-self.insets.top-self.insets.bottom)];
+
+    // If the inner view has no size, then dont pad
+    if(innerSize.width==0 || innerSize.height==0)
+        return CGSizeZero;
+
     return CGSizeMake(innerSize.width+self.insets.left+self.insets.right, innerSize.height+self.insets.top+self.insets.bottom);
 }
 @end
