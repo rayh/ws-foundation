@@ -9,4 +9,5 @@ typedef enum {
 @property (nonatomic) WSLayoutViewAlignment alignment;
 @property (nonatomic) CGFloat animationDuration;
 @property (nonatomic, readonly) CGSize sizeOfContents;
+@property (nonatomic, assign) BOOL traceLayout;
 @end

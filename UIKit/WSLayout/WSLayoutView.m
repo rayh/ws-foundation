@@ -1,4 +1,5 @@
 #import "WSLayoutView.h"
+#import "UIView+WSLayout.h"
 
 @interface WSLayoutView () {
     CGSize _sizeOfContents;
@@ -20,6 +21,9 @@
 
 - (BOOL)isViewFlexibleInAlignmentDirection:(UIView*)view
 {
+    if(view.hidden || view.alpha == 0)
+        return NO;
+    
     if(self.alignment==WSLayoutViewAlignmentVertical)
         return view.autoresizingMask&UIViewAutoresizingFlexibleHeight;
     else
@@ -35,8 +39,7 @@
     NSInteger numberOfFlexibleViews = 0;
     for(int i = 0; i < self.subviews.count; i++) {
         UIView *view = [self.subviews objectAtIndex:i];
-        if(view.hidden || view.alpha == 0)
-            continue;
+        
         
         // Ignore flexible views, other than to determine their number
         if([self isViewFlexibleInAlignmentDirection:view])
@@ -45,8 +48,13 @@
             continue;
         }
         
+        
         // Calculate the view's optimal size and store for later use
-        CGSize viewSize = [view sizeThatFits:size];
+        CGSize viewSize = CGSizeZero;
+        
+        // If not hidden, calculate view size
+        if(!view.hidden && view.alpha>0)
+            viewSize = [view sizeThatFits:size];
         
         // calculate our optimal size for FIXED views
         if(self.alignment==WSLayoutViewAlignmentVertical)
@@ -78,23 +86,19 @@
         sizeOfEachFlexibleView = CGSizeMake(MAX(0, self.frame.size.width - sizeOfContents.width)/ numberOfFlexibleViews, self.frame.size.height);
     }
     
-    //    NSMutableArray *debugStrings = [NSMutableArray array];
+    NSMutableArray *debugStrings = [NSMutableArray array];
     
     // Second pass: Calculate non-alignment sizes of FLEXIBLE views
     // Optionally layout the view (modify the subview frames)
     CGFloat currentLayoutOffset = 0;
     for(int i = 0; i < self.subviews.count; i++) {
         UIView *view = [self.subviews objectAtIndex:i];
-        if(view.hidden || view.alpha == 0)
-            continue;
-        
         CGSize viewSize = [[calculatedFrames objectForKey:@(i)] CGSizeValue];
         CGRect newFrameForView = CGRectMake(0,0,viewSize.width,viewSize.height);
-        BOOL isFlexible = [self isViewFlexibleInAlignmentDirection:view];
         
         // Flexible view's havent yet been consultate about their optimal size
         // Now we know their preferred size, ask them now, before layout
-        if(isFlexible)
+        if([self isViewFlexibleInAlignmentDirection:view])
         {
             // Calculate size of flexible views
             viewSize = [view sizeThatFits:sizeOfEachFlexibleView];
@@ -131,15 +135,19 @@
             view.frame = newFrameForView;
         }
         
-        //        [debugStrings addObject:[NSString stringWithFormat:@"%@(%0.2f)", NSStringFromClass([view class]), sizeInAlignmnetDirection]];
-        
+        [debugStrings addObject:[NSString stringWithFormat:@"%@%@", NSStringFromClass([view class]), NSStringFromCGRect(newFrameForView)]];
     }
     
-    //    if(debugStrings.count)
-    //        NSLog(@"[WSLayoutView:%@] %@ = %0.2f, %0.2f ", self.alignment==WSLayoutViewAlignmentHorizontal ? @"H" : @"V", [debugStrings componentsJoinedByString:@" + "], sizeOfFlexibleViews+sizeOfFixedViews, maxSizeInNonAlignmentDirection);
+    if(self.traceLayout && debugStrings.count)
+        NSLog(@"\n[WSLayoutView:%@:%@]\n  %@\n", self.alignment==WSLayoutViewAlignmentHorizontal ? @"H" : @"V", NSStringFromCGSize(sizeOfContents), [debugStrings componentsJoinedByString:@"\n  "]);
     
     // Update optimum size of view
     return sizeOfContents;
+}
+
+- (void)notifyViewDidChangeSize
+{
+    [super notifyViewDidChangeSize];
 }
 
 - (void)layoutSubviews
