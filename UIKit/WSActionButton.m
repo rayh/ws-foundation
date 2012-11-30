@@ -151,10 +151,10 @@
 
 - (UILabel*)createButtonLabel:(CGRect)frame
 {
-    UILabel *label = [UILabel labelWithFrame:frame 
-                       font:[UIFont boldSystemFontOfSize:16] 
+    UILabel *label = [UILabel labelWithFont:[UIFont boldSystemFontOfSize:16]
                      colour:LABEL_BRIGHT_COLOUR
                        text:nil];
+    label.frame = frame;
     
     switch(_textStyle)
     {

@@ -8,9 +8,9 @@
 #import "UILabel+WSFoundation.h"
 
 @implementation UILabel (WSFoundation)
-+ (UILabel*)labelWithFrame:(CGRect)frame font:(UIFont*)font colour:(UIColor*)colour text:(NSString*)text
++ (UILabel*)labelWithFont:(UIFont*)font colour:(UIColor*)colour text:(NSString*)text
 {
-    UILabel *label = [[UILabel alloc] initWithFrame:frame];
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectZero];
     label.backgroundColor = [UIColor clearColor];
     label.font = font;
     label.textColor = colour;    

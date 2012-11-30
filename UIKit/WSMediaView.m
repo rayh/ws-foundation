@@ -361,6 +361,11 @@
     [self.delegate mediaView:self didFailToLoad:self.url error:error];
 }
 
+- (CGSize)sizeThatFits:(CGSize)size
+{
+    return self.frame.size;
+}
+
 //- (void)presentFullScreen
 //{
 //    WSFullScreenMediaView *fullScreenView = [[WSFullScreenMediaView alloc] initWithMediaView:self];
