@@ -178,7 +178,7 @@
 - (void)initializeButton
 {
     self.autoresizeWidth = YES;
-    self.contentInsets = UIEdgeInsetsMake(0, 20, 0, 20);
+    self.contentInsets = UIEdgeInsetsMake(6, 20, 6, 20);
     self.userInteractionEnabled = YES;
     self.accessibilityTraits = UIAccessibilityTraitButton;
     
