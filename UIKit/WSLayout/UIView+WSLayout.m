@@ -51,26 +51,10 @@
 @end
 
 
+// The real implementation is in WSLayoutView
 @implementation UIView (WSLayoutUtility)
-
-- (void)addFlexibleSpace
-{
-  [self addSubview:[UIView view:^(UIView *view) {
-      view.autoresizingMask = UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth;
-  }]];
-}
-
-- (void)addFixedSpaceWithSize:(CGFloat)size
-{
-    if(![self isKindOfClass:[WSLayoutView class]])
-        return;
-    
-    WSLayoutViewAlignment alignment = [(WSLayoutView*)self alignment];
-    [self addSubview:[[UIView alloc] initWithFrame:CGRectMake(0, 0,
-                                                              alignment==WSLayoutViewAlignmentHorizontal ? size : 0,
-                                                              alignment==WSLayoutViewAlignmentVertical ? size : 0)]];
-}
-
+- (void)addFlexibleSpace {}
+- (void)addFixedSpaceWithSize:(CGFloat)size {}
 @end
 
 
