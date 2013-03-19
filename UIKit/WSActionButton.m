@@ -72,7 +72,7 @@
     switch(style)
     {
         case WSActionButtonStyleDefault:
-            return [UIColor colourWithInt:0xCCCCCC];
+            return [UIColor colourWithInt:0xEEEEEE];
             
         case WSActionButtonStyleWarning:
             return [UIColor colourWithInt:0xFAA732];
