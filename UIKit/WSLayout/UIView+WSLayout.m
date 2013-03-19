@@ -54,7 +54,7 @@
 // The real implementation is in WSLayoutView
 @implementation UIView (WSLayoutUtility)
 - (void)addFlexibleSpace {}
-- (void)addFixedSpaceWithSize:(CGFloat)size {}
+- (void)addFixedSpace:(CGFloat)size {}
 @end
 
 

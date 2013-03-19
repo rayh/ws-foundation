@@ -21,7 +21,7 @@ typedef CGSize (^UIViewSizeCalculationBlock)(UIView *viewToSize, CGSize sizeToFi
 
 // Utility methods for spacing layouts
 - (void)addFlexibleSpace;
-- (void)addFixedSpaceWithSize:(CGFloat)size;
+- (void)addFixedSpace:(CGFloat)size;
 @end
 
 @interface UIView (WSWrappedView)
