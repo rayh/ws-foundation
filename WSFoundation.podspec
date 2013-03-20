@@ -1,12 +1,12 @@
 Pod::Spec.new do |s|
   s.name         = "WSFoundation"
-  s.version      = "0.0.1"
+  s.version      = "0.0.2"
   s.summary      = "A set of useful tools for common iOS patterns."
   s.homepage     = "http://github.com/rayh/ws-foundation"
 
   s.license      = 'MIT'
   s.author       = { "Ray Hilton" => "ray@wirestorm.net" }
-  s.source       = { :git => "https://github.com/rayh/ws-foundation.git", :tag => "0.0.1" }
+  s.source       = { :git => "https://github.com/rayh/ws-foundation.git", :tag => "#{s.version}" }
   s.platform     = :ios, '5.0'
   s.ios.deployment_target = '5.0'
 
