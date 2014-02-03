@@ -7,7 +7,7 @@
 
 #import "WSMediaView.h"
 #import <QuartzCore/QuartzCore.h>
-#import "WSNetworkService.h"
+#import <AFNetworking/AFNetworking.h>
 
 @interface WSFullScreenMediaView : UIView
 @property (nonatomic, strong) WSMediaView *mediaView;
@@ -134,6 +134,18 @@
 
 @implementation WSMediaView
 
++ (NSCache *)mediaCache
+{
+    static NSCache *_mediaCache;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        _mediaCache = [[NSCache alloc] init];
+        _mediaCache.totalCostLimit = 2 * 1024 * 1024;
+    });
+    
+    return _mediaCache;
+}
+
 - (id)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
@@ -238,7 +250,6 @@
 {
     if(self.imageView.hidden && !self.imageView.image)
     {
-        
         // FIXME: make it look more like its a screen shot of a webview and not something to be interacted with
         BOOL wasHidden = self.webView.hidden;
         self.webView.hidden = NO;
@@ -287,49 +298,112 @@
     {
         return;
     }
+    
+    [self determineMediaTypeOfUrl:url success:^(WSMediaViewContentType type) {
+        // FIXME: If this is audio/video - use media framework to load it
+        // FIXME: If this is unknown content, load in webview
+        
+        self.contentType = type;
+        
+        switch (type) {
+            case WSMediaViewContentTypeImage:
+                [self loadUrlAsImage:url];
+                break;
                 
-    [[WSNetworkService sharedService] perform:@"GET" 
-                                          url:url 
-                                       modify:nil
-                                      success:^(NSHTTPURLResponse *response, id object) 
-     {
-         /// If this isnt what we asked for, ignore...
-         if(![response.URL isEqual:self.originalUrl])
-             return;
-         
-         NSString *mimeType = [[response allHeaderFields] valueForKey:@"Content-Type"];
-         if([mimeType hasPrefix:@"image/"]) 
-         {
-             self.contentType = WSMediaViewContentTypeImage;
-             UIImage *image = [UIImage imageWithData:object];
-             // Show image
-             [self setImage:image];
-             [self.delegate mediaView:self didFinishLoadingUrl:url];
-         }
-         else if([mimeType hasPrefix:@"audio/"])
-         {
-             self.contentType = WSMediaViewContentTypeAudio;
-             [self loadWebView];
-             [self.webView loadRequest:[NSURLRequest requestWithURL:url]];
-         }
-         else if([mimeType hasPrefix:@"video/"]) 
-         {
-             self.contentType = WSMediaViewContentTypeVideo;
-             [self loadWebView];
-             [self.webView loadRequest:[NSURLRequest requestWithURL:url]];
-         }
-         else 
-         {
-             self.contentType = WSMediaViewContentTypeOther;
-             [self loadWebView];
-             [self.webView loadRequest:[NSURLRequest requestWithURL:url]];
-             // We could still load this, but how to present a web page?
-         }
-         
-    } failure:^(NSError *error) {
+            case WSMediaViewContentTypeAudio:
+                [self loadWebView];
+                [self.webView loadRequest:[NSURLRequest requestWithURL:url]];
+                break;
+                
+            case WSMediaViewContentTypeVideo:
+                [self loadWebView];
+                [self.webView loadRequest:[NSURLRequest requestWithURL:url]];
+                
+            case WSMediaViewContentTypeOther:
+                [self loadWebView];
+                [self.webView loadRequest:[NSURLRequest requestWithURL:url]];
+                // We could still load this, but how to present a web page?
+        }
+        
+    }];
+}
+
+- (void)loadUrlAsImage:(NSURL*)url
+{
+    // ELSE, this is an image, load it via the cache
+    UIImage *cachedImage = [[[self class] mediaCache] objectForKey:[url absoluteString]];
+    if(cachedImage)
+    {
+        [self setImage:cachedImage];
+        [self.delegate mediaView:self didFinishLoadingUrl:url];
+        return;
+    }
+    
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+    [request setHTTPMethod:@"GET"];
+    [request addValue:@"image/*" forHTTPHeaderField:@"Accept"];
+    
+    
+    AFHTTPRequestOperation *op = [[AFHTTPRequestOperation alloc] initWithRequest:request];
+    op.responseSerializer = [AFImageResponseSerializer serializer];
+    [op setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, UIImage *image) {
+        NSHTTPURLResponse *response = (NSHTTPURLResponse *)operation.response;
+        
+        // If this isnt what we asked for, ignore...
+        if(![response.URL isEqual:self.originalUrl])
+            return;
+        
+        // Cache the image
+        [[[self class] mediaCache] setObject:image forKey:[url absoluteString] cost:UIImageJPEGRepresentation(image, 0.9).length];
+        
+        // Show image
+        [self setImage:image];
+        self.url = url;
+        [self.delegate mediaView:self didFinishLoadingUrl:url];
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         NSLog(@"Failed to download %@ because %@", url, error);
         [self.delegate mediaView:self didFailToLoad:url error:error];
     }];
+    
+    [[NSOperationQueue mainQueue] addOperation:op];
+}
+
+- (void)determineMediaTypeOfUrl:(NSURL*)url success:(void(^)(WSMediaViewContentType type))success;
+{
+    if([url.absoluteString hasSuffix:@".jpg"] || [url.absoluteString hasSuffix:@".jpeg"] || [url.absoluteString hasSuffix:@".png"] || [url.absoluteString hasSuffix:@".gif"])
+    {
+        success(WSMediaViewContentTypeImage);
+        return;
+    }
+    
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+    [request addValue:@"*/*" forHTTPHeaderField:@"Accept"];
+    [request setHTTPMethod:@"HEAD"];
+    
+    AFHTTPRequestOperation *op = [[AFHTTPRequestOperation alloc] initWithRequest:request];
+    op.responseSerializer = [AFHTTPResponseSerializer serializer];
+    [op setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, UIImage *image) {
+        NSHTTPURLResponse *response = (NSHTTPURLResponse *)operation.response;
+        
+        /// If this isnt what we asked for, ignore...
+        if(![response.URL isEqual:self.originalUrl])
+            return;
+        
+        NSString *mimeType = [[response allHeaderFields] valueForKey:@"Content-Type"];
+        if([mimeType hasPrefix:@"image/"])
+            success(WSMediaViewContentTypeImage);
+        else if([mimeType hasPrefix:@"audio/"])
+            success(WSMediaViewContentTypeAudio);
+        else if([mimeType hasPrefix:@"video/"])
+            success(WSMediaViewContentTypeVideo);
+        else
+            success(WSMediaViewContentTypeOther);
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"Failed to determine content type of %@ because %@", url, error);
+        [self.delegate mediaView:self didFailToLoad:url error:error];
+    }];
+    
+    [[NSOperationQueue mainQueue] addOperation:op];
 }
 
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
