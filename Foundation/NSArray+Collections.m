@@ -38,7 +38,7 @@
 	return [self select:block];
 }
 
--(NSArray *) sort: (int(^)(id obj1, id obj2))block {
+-(NSArray *) sort: (NSComparisonResult(^)(id obj1, id obj2))block {
 	return [self sortedArrayUsingComparator:block];
 }
 
