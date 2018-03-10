@@ -7,8 +7,8 @@ Pod::Spec.new do |s|
   s.license      = 'MIT'
   s.author       = { "Ray Hilton" => "ray@wirestorm.net" }
   s.source       = { :git => "https://github.com/rayh/ws-foundation.git", :tag => "0.0.1" }
-  s.platform     = :ios, '5.0'
-  s.ios.deployment_target = '5.0'
+  s.platform     = :ios, '7.0'
+  s.ios.deployment_target = '7.0'
 
   s.source_files = '**/*.{h,m}'
 

@@ -4,7 +4,7 @@
 -(NSArray *) select:(BOOL(^)(id object))block;
 -(NSArray *) filter:(BOOL(^)(id object))block;
 -(NSArray *) each:(void(^)(id object))block;
--(NSArray *) sort:(int(^)(id a, id b))block;
+-(NSArray *) sort:(NSComparisonResult(^)(id a, id b))block;
 -(NSString *) join;
 -(NSString *) join:(NSString *)separator;
 -(NSArray *) take:(int)number;
